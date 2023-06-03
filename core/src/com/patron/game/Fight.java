@@ -3,6 +3,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.SnapshotArray;
@@ -155,7 +156,7 @@ public class Fight implements Screen {
             step += 210;
             if (draw.size() == 0) shuffleDeck();
             inHand.add(draw.get(0));
-//            addCardActorToGroup(draw.get(0));
+
             draw.get(0).cardActor.setPos(step + Gdx.graphics.getWidth() /2, 10);
             draw.get(0).cardActor.number = i;
             cardActors.addActor(draw.get(0).cardActor);
@@ -163,19 +164,15 @@ public class Fight implements Screen {
             draw.remove(0);
         }
     }
-    //фігня метод вийшов
-    public static void addCardActorToGroup(Card card){
-        SnapshotArray<Actor> cardActorsTemp = cardActors.getChildren();
-        int step = (cardActorsTemp.size+1) % 2 == 1 ? (cardActorsTemp.size)*(-210) + 100 :(cardActorsTemp.size - 1)*(-210);
-        cardActors.clear();
-        for (Actor actor : cardActorsTemp){
-            step += 210;
-            cardActors.addActor(actor);
-            ((CardActor) actor).setPos(step + Gdx.graphics.getWidth() /2, 30);
+    private void centerCardDeck() {
+        float targetX = Gdx.graphics.getWidth() /2 - (cardActors.getChildren().size * 210) / 2;
+        float duration = 0.5f; // Длительность анимации в секундах
+        for (Actor actor : cardActors.getChildren()) {
+            actor.addAction(Actions.moveTo(targetX, actor.getY(), duration));
+            targetX += 210;
         }
-        cardActors.addActor(card.cardActor);
-        card.cardActor.setPos(step + Gdx.graphics.getWidth() /2, 30);
     }
+
     private static void shuffleDeck(){
         draw.clear();
         Collections.shuffle(discard);

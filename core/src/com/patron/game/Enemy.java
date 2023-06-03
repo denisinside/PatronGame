@@ -13,7 +13,7 @@ public class Enemy {
     protected ArrayList<Action> enemyMoves = new ArrayList<>();
     protected int moveIndex = 0;
     protected ArrayList<Effect> effects = new ArrayList<>();
-    protected Random random = new Random();
+    protected static Random random = new Random();
 
     protected double damageMultiplier = 1;
     protected double defendMultiplier = 1;
@@ -23,8 +23,8 @@ public class Enemy {
     protected int defendBuff = 0;
 
     public EnemyActor enemyActor;
-    public Enemy(){
-        health = maxHealth;
+    public Enemy(int hp){
+        maxHealth = health = hp;
         enemyActor = new EnemyActor(200,300,this);
     }
 

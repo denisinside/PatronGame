@@ -9,13 +9,11 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
 
 public class CardActor extends Actor {
     public Card card;
@@ -90,10 +88,8 @@ public class CardActor extends Actor {
                     for (Actor actor : Fight.enemiesActors.getChildren()) {
                             Rectangle clickedActorBounds = new Rectangle(actor.getX(), actor.getY(), actor.getWidth(), actor.getHeight());
                         if(Intersector.intersectRectangles(cardBounds,clickedActorBounds, new Rectangle())) {
-                                // Обработка нажатия на актера
-                                // Ваши действия здесь
-                                System.out.println(55555);
                                 found = true;
+                            ((EnemyActor) actor).enemy.health = 8;
                                 break;
                             }
                     }
@@ -129,7 +125,7 @@ public class CardActor extends Actor {
         FreeTypeFontGenerator fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Albionic.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParameter.size = 18;
-        fontParameter.characters = "123456789()+-=*!?,.АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯЇїІіЄєабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+        fontParameter.characters = "123456789()+-=/*!?,.АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯЇїІіЄєабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
         fontParameter.borderWidth = 2;
         fontNameBasic = fontGenerator.generateFont(fontParameter);
 
