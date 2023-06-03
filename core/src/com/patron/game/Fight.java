@@ -133,11 +133,6 @@ public class Fight implements Screen {
             else loose = true;
         }
     }
-    private void printStats(){
-        System.out.println("\n\n\n\n\n\n\n\n");
-        player.printStats();
-        for (Enemy enemy : enemies) enemy.printStats();
-    }
     private Enemy chooseEnemy(){
         System.out.println("Вибери ворога, на якого хочеш використати карту: ");
         for(int i = 0; i < enemies.size(); i++){
@@ -164,11 +159,12 @@ public class Fight implements Screen {
             draw.remove(0);
         }
     }
-    private void centerCardDeck() {
+    public static void centerCardDeck() {
         float targetX = Gdx.graphics.getWidth() /2 - (cardActors.getChildren().size * 210) / 2;
         float duration = 0.5f; // Длительность анимации в секундах
         for (Actor actor : cardActors.getChildren()) {
             actor.addAction(Actions.moveTo(targetX, actor.getY(), duration));
+            ((CardActor) actor).xPos = targetX;
             targetX += 210;
         }
     }

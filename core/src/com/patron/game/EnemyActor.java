@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Align;
 public class EnemyActor extends Actor {
     public Enemy enemy;
     private Sprite enemySprite;
-    private HealthBar healthBar;
+    public HealthBar healthBar;
     float width, height, x, y;
 
     public EnemyActor(float width, float height, Enemy enemy){
@@ -37,6 +37,7 @@ public class EnemyActor extends Actor {
         setBounds(getX(), getY(), getWidth(), getHeight());
 
         healthBar.setCurrentValue(enemy.health);
+        healthBar.act(delta);
     }
 
     @Override
@@ -46,14 +47,13 @@ public class EnemyActor extends Actor {
     }
 }
 class HealthBar extends Actor {
-    private float width;
-    private float height;
-    private float maxValue;
-    private float currentValue;
-    private final Color backgroundColor;
-    private final Color foregroundColor;
-    private Color borderColor;
+    private Sprite armorIcon;
+    private float width,height;
+    private float maxValue,currentValue;
+    private final Color backgroundColor, foregroundColor, borderColor;
     private int borderWidth;
+    public boolean showArmor = false;
+    private int armor = 0;
 
     private ShapeRenderer shapeRenderer;
 
@@ -66,10 +66,18 @@ class HealthBar extends Actor {
         this.foregroundColor = Color.RED;
         this.borderColor = Color.BROWN;
         borderWidth = 5;
+        armorIcon = new Sprite(new Texture(Gdx.files.internal("armor.png")));
 
         shapeRenderer = new ShapeRenderer();
     }
 
+    public void setArmor(int armor) {
+        this.armor = armor;
+    }
+
+    public void setMaxValue(float maxValue){
+        this.maxValue = maxValue;
+    }
     public void setCurrentValue(float currentValue) {
         this.currentValue = (int) MathUtils.clamp(currentValue, 0, maxValue);
     }
@@ -80,15 +88,17 @@ class HealthBar extends Actor {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        shapeRenderer.setColor(backgroundColor);
+        if (showArmor)shapeRenderer.setColor(Color.ROYAL);
+        else shapeRenderer.setColor(backgroundColor);
         shapeRenderer.rect(getX(), getY(), width, height);
 
-        shapeRenderer.setColor(foregroundColor);
+        if (showArmor)shapeRenderer.setColor(Color.SKY);
+        else shapeRenderer.setColor(foregroundColor);
         float fillWidth =(currentValue / maxValue) * width;
-        System.out.println(currentValue + " " + maxValue);
         shapeRenderer.rect(getX(), getY(), fillWidth, height);
 
-        shapeRenderer.setColor(borderColor);
+        if (showArmor)shapeRenderer.setColor(Color.NAVY);
+        else shapeRenderer.setColor(borderColor);
         shapeRenderer.rectLine(getX(), getY(), getX() + width, getY(), borderWidth); // Верхняя граница
         shapeRenderer.rectLine(getX(), getY() + height, getX() + width, getY() + height, borderWidth); // Нижняя граница
         shapeRenderer.rectLine(getX(), getY(), getX(), getY() + height, borderWidth); // Левая граница
@@ -97,7 +107,20 @@ class HealthBar extends Actor {
         shapeRenderer.end();
 
         batch.begin();
-        CardActor.fontNameBig.draw(batch,(int)currentValue+"/"+(int)maxValue,getX(),getY()+getHeight()-getHeight()/4,getWidth(), Align.center,true);
+        CardActor.fontNameBig.draw(batch,((int)currentValue)+"/"+((int)maxValue),getX(),getY()+getHeight()-getHeight()/4,getWidth(), Align.center,true);
+        if (showArmor) {
+            armorIcon.draw(batch);
+            CardActor.fontNameBig.draw(batch,armor+"",getX()-30,getY()+getHeight()/2,60, Align.center,true);
+        }
+    }
 
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+       armorIcon.setBounds(getX()-30,getY()-25,60,60);
+    }
+
+    public void showArmor(boolean b) {
+        showArmor = b;
     }
 }

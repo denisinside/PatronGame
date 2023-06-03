@@ -23,9 +23,10 @@ public class Player {
 
 
     public Player(){
-        actor = new PlayerActor();
        health = maxHealth;
        energy = maxEnergy;
+        actor = new PlayerActor();
+        actor.healthBar.setCurrentValue(health);
    }
     public void addEffect(Effect effect){
         for (Effect e : effects) {
@@ -59,6 +60,7 @@ public class Player {
     public void heal(int healAmount) {
         if (healAmount + health <= maxHealth) health += healAmount;
         else health = maxHealth;
+        actor.healthBar.setCurrentValue(health);
     }
     public void getDamage(int damage){
         damage = (int)Math.round(damage*damageMultiplier);
@@ -70,18 +72,26 @@ public class Player {
             }
            if (health - damage >= 0) health -= damage;
            else  health = 0;
+           actor.healthBar.showArmor(false);
         }
+        actor.healthBar.setArmor(armor);
+        actor.healthBar.setCurrentValue(health);
     }
     public int getArmor() {
         return armor;
     }
     public void addArmor(int armor) {
         this.armor += (int) Math.round((armor+defendBuff)*defendMultiplier);
-        System.out.println("Захистився на " + (int) Math.round((armor+defendBuff)*defendMultiplier));
+        actor.healthBar.setArmor(this.armor);
+        actor.healthBar.showArmor(true);
     }
 
     public void setArmor(int armor) {
         this.armor = armor;
+    }
+
+    public int getMaxHealth() {
+        return maxHealth;
     }
 
     public int getEnergy() {
@@ -160,12 +170,4 @@ public class Player {
         return strengthBuff;
     }
 
-    public void printStats() {
-        String format = "%-15s%-15s%-15s%-15s%n";
-        System.out.format(format, "Name", "Health", "Energy", "Armor");
-        System.out.format(format, "----", "------", "------", "-------");
-        System.out.format(format, "Патрон", health +"/"+ maxHealth, energy, armor);
-        for (Effect effect : effects) System.out.println(effect);
-        System.out.println("\n");
-    }
 }

@@ -28,7 +28,7 @@ public class Card implements Cloneable{
     protected int skillStrength;
     protected boolean burning, ghostly, disposable, playable = true;
     protected UseType type;
-    protected String target; // all, random, one
+    protected String target; // all, random, one, player
     protected Effect[] effects = null;
     protected Rarity rarity;
     public CardActor cardActor;
@@ -137,7 +137,9 @@ class AttackCard extends Card{
     }
     @Override
     public void use(Enemy enemy, ArrayList<Enemy> enemies) {
-        ArrayList<Enemy> enemies1 = new ArrayList<>(enemies);
+        ArrayList<Enemy> enemies1;
+        if (enemies != null)enemies1 = new ArrayList<>(enemies);
+        else enemies1 = new ArrayList<>();
         if (target.equals("one")) {
             enemies1.clear();
             enemies1.add(enemy);
@@ -174,17 +176,17 @@ class AttackCard extends Card{
 }
 class SkillCard extends Card{
     int blockCount = 1;
-    public SkillCard(String name, String description,Rarity rarity,  int energy, UseType type, String useType, int skillStrength){
+    public SkillCard(String name, String description,Rarity rarity,  int energy, UseType type, String target, int skillStrength){
         super(name, description, rarity, energy);
         this.skillStrength = skillStrength;
         this.type = type;
-        this.target = useType;
+        this.target = target;
     }
-    public SkillCard(String name, String description,Rarity rarity,  int energy, UseType type, String useType, Effect[]effects){
+    public SkillCard(String name, String description,Rarity rarity,  int energy, UseType type, String target, Effect[]effects){
         super(name, description, rarity, energy);
         this.effects = effects;
         this.type = type;
-        this.target = useType;
+        this.target = target;
     }
     @Override
     public void use(Enemy enemy, ArrayList<Enemy> enemies){

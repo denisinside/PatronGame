@@ -98,7 +98,9 @@ public class Enemy {
                 armor = 0;
             }
             health -= damage;
+            enemyActor.healthBar.showArmor(false);
         }
+        enemyActor.healthBar.setArmor(armor);
     }
     public void makeMove(){
         switch (enemyMoves.get(moveIndex).getMove()){
@@ -145,6 +147,8 @@ public class Enemy {
             block.toAll = false;
             for (Enemy enemy : Fight.enemies) enemy.defend(block);
         }
+        enemyActor.healthBar.setArmor(armor);
+        enemyActor.healthBar.showArmor(true);
     }
     public void printStats() {
         String values = null;
