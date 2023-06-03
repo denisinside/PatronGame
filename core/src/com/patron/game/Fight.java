@@ -196,8 +196,8 @@ public class Fight implements Screen {
     SpriteBatch batch;
     Texture background;
     static Stage stage;
-    static Group cardActors;
-    static Group enemiesActors;
+    public static Group cardActors;
+    public static Group enemiesActors;
 
     private void addEnemiesToGroup(){
         int y = Gdx.graphics.getHeight()/3;
@@ -215,6 +215,7 @@ public class Fight implements Screen {
         player.actor.setPosition(100,Gdx.graphics.getHeight()/3 );
         stage.addActor(enemiesActors);
         stage.addActor(cardActors);
+        stage.setDebugAll(true);
         stage.addListener(new FightInputController(cardActors));
         addEnemiesToGroup();
     }
