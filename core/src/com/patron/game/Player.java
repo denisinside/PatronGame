@@ -19,9 +19,11 @@ public class Player {
 
     private int strengthBuff = 0;
     private int defendBuff = 0;
+    public PlayerActor actor;
 
 
     public Player(){
+        actor = new PlayerActor();
        health = maxHealth;
        energy = maxEnergy;
    }

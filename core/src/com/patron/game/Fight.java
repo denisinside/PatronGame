@@ -211,6 +211,8 @@ public class Fight implements Screen {
 
     @Override
     public void show() {
+        stage.addActor(player.actor);
+        player.actor.setPosition(100,Gdx.graphics.getHeight()/3 );
         stage.addActor(enemiesActors);
         stage.addActor(cardActors);
         stage.addListener(new FightInputController(cardActors));

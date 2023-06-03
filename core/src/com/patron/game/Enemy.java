@@ -25,7 +25,7 @@ public class Enemy {
     public EnemyActor enemyActor;
     public Enemy(){
         health = maxHealth;
-        enemyActor = new EnemyActor(300,400);
+        enemyActor = new EnemyActor(200,300);
     }
 
     public void shuffleMoves(Action[]attacks, Action[]blocks){
