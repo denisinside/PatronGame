@@ -65,29 +65,13 @@ public class CardActor extends Actor {
     }
 
     public static void setFonts() {
-        FreeTypeFontGenerator fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Albionic.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        fontParameter.size = 18;
-        fontParameter.characters = "0123456789()+-=/*!?,.АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯЇїІіЄєабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-        fontParameter.borderWidth = 2;
-        fontNameBasic = fontGenerator.generateFont(fontParameter);
 
+        fontNameBasic = Fonts.ALBIONIC_BASIC_NAME;
+        fontNameBig = Fonts.ALBIONIC_LARGE_NAME;
+        fontDescriptionBasic = Fonts.ALBIONIC_BASIC_DESC;
+        fontDescriptionBig = Fonts.ALBIONIC_LARGE_DESC;
 
-        fontParameter.borderWidth = 3;
-        fontParameter.size = 24;
-        fontNameBig = fontGenerator.generateFont(fontParameter);
-
-        fontParameter.borderWidth = 1;
-        fontParameter.size = 14;
-        fontDescriptionBasic = fontGenerator.generateFont(fontParameter);
-
-        fontParameter.borderWidth = 2;
-        fontParameter.size = 18;
-        fontDescriptionBig = fontGenerator.generateFont(fontParameter);
-
-
-        fontGenerator.dispose();
-
+        Fonts.albionicFontGenerator.dispose();
     }
 
     public void select() {
