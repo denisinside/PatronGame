@@ -47,7 +47,8 @@ public class Card implements Cloneable{
             default:
         }
     }
-    public void use(Enemy enemy, ArrayList<Enemy> enemies){}
+    public void use(Enemy enemy, ArrayList<Enemy> enemies){
+    }
     public String getName() {
         return name;
     }

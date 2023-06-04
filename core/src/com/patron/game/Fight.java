@@ -1,13 +1,16 @@
 package com.patron.game;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.SnapshotArray;
+import com.badlogic.gdx.graphics.Color;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -30,7 +33,6 @@ public class Fight implements Screen {
         stage = new Stage();
         cardActors = new Group();
         enemiesActors = new Group();
-        Gdx.input.setInputProcessor(stage);
 
         playing();
     }
@@ -152,20 +154,24 @@ public class Fight implements Screen {
             if (draw.size() == 0) shuffleDeck();
             inHand.add(draw.get(0));
 
-            draw.get(0).cardActor.setPos(step + Gdx.graphics.getWidth() /2, 10);
-            draw.get(0).cardActor.number = i;
+            draw.get(0).cardActor.setPos(-step, 10);
+
             cardActors.addActor(draw.get(0).cardActor);
 
             draw.remove(0);
         }
+        centerCardDeck();
     }
     public static void centerCardDeck() {
-        float targetX = Gdx.graphics.getWidth() /2 - (cardActors.getChildren().size * 210) / 2;
-        float duration = 0.5f; // Длительность анимации в секундах
+        float targetX = Gdx.graphics.getWidth() /2 - (cardActors.getChildren().size * (CardActor.cardWidth+10)) / 2;
+        float duration = 0.5f;
+        int number = 0;
         for (Actor actor : cardActors.getChildren()) {
             actor.addAction(Actions.moveTo(targetX, actor.getY(), duration));
             ((CardActor) actor).xPos = targetX;
-            targetX += 210;
+            ((CardActor) actor).number = number;
+            targetX += CardActor.cardWidth+10;
+            number++;
         }
     }
 
@@ -188,6 +194,8 @@ public class Fight implements Screen {
     }
     SpriteBatch batch;
     Texture background;
+    Sprite drawButton, discardButton, nextMoveButton;
+    public  static EnergyActor playerEnergy;
     static Stage stage;
     public static Group cardActors;
     public static Group enemiesActors;
@@ -201,7 +209,26 @@ public class Fight implements Screen {
              x += enemy.enemyActor.width*1.2;
         }
     }
+    private void addButtons() {
+        playerEnergy = new EnergyActor(player.getEnergy(), 150,150);
+        drawButton = new Sprite(new Texture(Gdx.files.internal("draw.png")));
+        discardButton = new Sprite(new Texture(Gdx.files.internal("discard.png")));
+        nextMoveButton = new Sprite(new Texture(Gdx.files.internal("nextmovebutton.png")));
 
+        playerEnergy.setPosition(Gdx.graphics.getWidth()/8,130);
+        stage.addActor(playerEnergy);
+        drawButton.setBounds(10,10,200,200);
+        discardButton.setBounds(Gdx.graphics.getWidth()-210,10,200,200);
+        nextMoveButton.setBounds(Gdx.graphics.getWidth()/2+Gdx.graphics.getWidth()/3,Gdx.graphics.getHeight()/5,300,100);
+    }
+
+    private void disableListeners(){
+        Gdx.input.setInputProcessor(null);
+    }
+    private void enableListeners(){
+        Gdx.input.setInputProcessor(stage);
+
+    }
     @Override
     public void show() {
         stage.addActor(player.actor);
@@ -209,17 +236,36 @@ public class Fight implements Screen {
         stage.addActor(enemiesActors);
         stage.addActor(cardActors);
         stage.setDebugAll(true);
-        stage.addListener(new FightInputController(cardActors));
         addEnemiesToGroup();
+        addButtons();
+        shapeRenderer = new ShapeRenderer();
+        stage.addListener(new FightInputController(cardActors));
+        enableListeners();
     }
 
+    private ShapeRenderer shapeRenderer;
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
         batch.begin();
 
         batch.draw(background,0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+        drawButton.draw(batch);
+        discardButton.draw(batch);
+        nextMoveButton.draw(batch);
 
+        batch.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.GOLD);
+        shapeRenderer.circle((float) (drawButton.getX()+(drawButton.getWidth()*0.9)), (float) (drawButton.getY()*4),drawButton.getWidth()/6);
+        shapeRenderer.circle((float) (discardButton.getX()), (float) (discardButton.getY()*4),discardButton.getWidth()/6);
+        shapeRenderer.end();
+
+        batch.begin();
+        CardActor.fontNameBig.draw(batch,draw.size()+"",(float) (drawButton.getX()+(drawButton.getWidth()*0.8)),drawButton.getY()*5,drawButton.getWidth()/6, Align.center,true);
+        CardActor.fontNameBig.draw(batch,discard.size()+"",(float) (discardButton.getX()-(discardButton.getWidth()*0.1)),discardButton.getY()*5,discardButton.getWidth()/6, Align.center,true);
+        nextMoveButton.setBounds(Gdx.graphics.getWidth()/2+Gdx.graphics.getWidth()/3,Gdx.graphics.getHeight()/5,300,100);
+        CardActor.fontNameBig.draw(batch,"Наступний хід",Gdx.graphics.getWidth()/2+Gdx.graphics.getWidth()/3, (float) (Gdx.graphics.getHeight()/5+nextMoveButton.getHeight()/1.5),nextMoveButton.getWidth(), Align.center,true);
 
         batch.end();
 

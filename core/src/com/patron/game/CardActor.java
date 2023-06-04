@@ -22,21 +22,22 @@ public class CardActor extends Actor {
     public int number;
     boolean selected = false;
     EnergyActor energyActor;
-    public float xPos, yPos, offsetX = 25, offsetY = 115;
-    private Sprite cardTemplateTexture;
-    private Sprite cardImageTexture;
+    public static float cardWidth = 150,cardHeight = 225;
+    public float xPos, yPos, offsetX = 4, offsetY = (float) (4);
+    private Sprite cardTemplateTexture, cardImageTexture;
     private Rectangle textBounds;
 
 
     public CardActor(Card card, float x, float y) {
         super();
+
         this.card = card;
 
         cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("TALANT.png")));
         cardImageTexture = new Sprite(new Texture(Gdx.files.internal("example.jpg")));
         energyActor = new EnergyActor(card.cost, 100, 100);
 
-        setBounds(x, y, 200, 300);
+        setBounds(x, y, cardWidth, cardHeight);
         xPos = x;
         yPos = y;
         setDraggable(true);
@@ -44,6 +45,7 @@ public class CardActor extends Actor {
     }
     public void afterUsing(){
         Fight.player.setEnergy( Fight.player.getEnergy() - card.getCostNow());
+        Fight.playerEnergy.setEnergyAmount(Fight.player.getEnergy());
         if (card.burning) Fight.inHand.remove(card);
         else if (card.disposable) {
             Fight.inHand.remove(card);
@@ -91,12 +93,12 @@ public class CardActor extends Actor {
     public void select() {
         if (selected) {
             selected = false;
-            addAction(Actions.sizeTo(200, 300, 0.5f));
+            addAction(Actions.sizeTo(cardWidth, cardHeight, 0.5f));
             setZIndex(2);
         } else {
             selected = true;
             setZIndex(15);
-            addAction(Actions.sizeTo(300, 450, 0.5f));
+            addAction(Actions.sizeTo((float) (cardWidth*1.5), (float) (cardHeight*1.5), 0.5f));
             // я єбав (тут треба зробити, щоб інші селектід картки були вже не селектід)
             //upd ура зробив (залишу для історії)
             for (Actor cardActor : Fight.cardActors.getChildren()) {
@@ -169,6 +171,7 @@ public class CardActor extends Actor {
                                             card.use(null,Fight.enemies);
                                             afterUsing();
                                             break;
+                                        default: found = false;
                                     }
                                     break;
                                 }
@@ -198,8 +201,8 @@ public class CardActor extends Actor {
     @Override
     public void act(float delta) {
         super.act(delta);
-        offsetX = 25 * getWidth() / 200;
-        offsetY = 115 * getHeight() / 300;
+        offsetX = (cardWidth/8) * getWidth() / cardWidth;
+        offsetY = (float) ((cardHeight/2.6) * getHeight() / cardHeight);
         cardImageTexture.setBounds(getX() + offsetX, getY() + offsetY, 150 * getWidth() / 200, 150 * getHeight() / 300);
         cardTemplateTexture.setBounds(getX(), getY(), getWidth(), getHeight());
         energyActor.setBounds(getX(), getY() + getHeight() - energyActor.getHeight(), 75 * getWidth() / 200, 75 * getHeight() / 300);
@@ -220,15 +223,15 @@ public class CardActor extends Actor {
         cardTemplateTexture.draw(batch);
 
         // назва, опис картки
-        textBounds = new Rectangle(getX() + offsetX, (float) (getY() + offsetY * 0.95), 150 * getWidth() / 200, 30);
+        textBounds = new Rectangle(getX() + offsetX, (float) (getY() + offsetY * 0.95), 150 * getWidth() / cardWidth, 30);
 
-        if (getWidth() >= 250)
+        if (getWidth() >= cardWidth*1.5)
             fontNameBig.draw(batch, card.getName(), textBounds.x, textBounds.y, textBounds.width, Align.center, true);
         else
             fontNameBasic.draw(batch, card.getName(), textBounds.x, textBounds.y, textBounds.width, Align.center, true);
 
-        textBounds = new Rectangle((float) (getX() + offsetX * 0.9), (float) (getY() + offsetY * 0.7), 160 * getWidth() / 200, 0);
-        if (getWidth() >= 250)
+        textBounds = new Rectangle((float) (getX() + offsetX * 0.9), (float) (getY() + offsetY * 0.7), 160 * getWidth() / cardWidth, 0);
+        if (getWidth() >= cardWidth*1.5)
             fontDescriptionBig.draw(batch, card.getActualDescription(), textBounds.x, textBounds.y, textBounds.width, Align.center, true);
         else
             fontDescriptionBasic.draw(batch, card.getActualDescription(), textBounds.x, textBounds.y, textBounds.width, Align.center, true);
@@ -248,19 +251,32 @@ public class CardActor extends Actor {
 class EnergyActor extends Actor {
     int energyAmount;
     Sprite energyIcon;
+    BitmapFont font;
 
     public EnergyActor(int energyAmount, int width, int height) {
         this.energyAmount = energyAmount;
         energyIcon = new Sprite(new Texture(Gdx.files.internal("energy.png")));
         setWidth(width);
         setHeight(height);
+
+        FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        fontParameter.size = 18;
+        fontParameter.borderWidth = 2;
+        font = new FreeTypeFontGenerator(Gdx.files.internal("Albionic.ttf")).generateFont(fontParameter);
+        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+    }
+
+    public void setEnergyAmount(int energyAmount) {
+        this.energyAmount = energyAmount;
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
         energyIcon.draw(batch);
-        CardActor.fontNameBig.draw(batch, energyAmount + "", getX() + getWidth() / 5, getY() + getHeight() - getHeight() / 5, getWidth(), Align.center, true);
+
+        font.getData().setScale(getWidth()/50);
+        font.draw(batch, energyAmount + "", getX() + getWidth() / 5, getY() + getHeight() - getHeight() / 7, getWidth(), Align.center, true);
     }
 
     @Override

@@ -99,10 +99,10 @@ class HealthBar extends Actor {
 
         if (showArmor)shapeRenderer.setColor(Color.NAVY);
         else shapeRenderer.setColor(borderColor);
-        shapeRenderer.rectLine(getX(), getY(), getX() + width, getY(), borderWidth); // Верхняя граница
-        shapeRenderer.rectLine(getX(), getY() + height, getX() + width, getY() + height, borderWidth); // Нижняя граница
-        shapeRenderer.rectLine(getX(), getY(), getX(), getY() + height, borderWidth); // Левая граница
-        shapeRenderer.rectLine(getX() + width, getY(), getX() + width, getY() + height, borderWidth); // Правая граница
+        shapeRenderer.rectLine(getX(), getY(), getX() + width, getY(), borderWidth);
+        shapeRenderer.rectLine(getX(), getY() + height, getX() + width, getY() + height, borderWidth);
+        shapeRenderer.rectLine(getX(), getY(), getX(), getY() + height, borderWidth);
+        shapeRenderer.rectLine(getX() + width, getY(), getX() + width, getY() + height, borderWidth);
 
         shapeRenderer.end();
 
