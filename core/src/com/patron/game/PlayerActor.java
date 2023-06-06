@@ -34,7 +34,7 @@ public class PlayerActor extends Actor {
 
         effectPanel = new EffectPanel(getWidth());
 
-        playerSprite = new Sprite(new Texture(Gdx.files.internal("patron.png")));
+        playerSprite = new Sprite(new Texture(Gdx.files.internal("Patron_Idle.png")));
     }
     public void addValue(int value, Color color, EnemyActor.valueType valueType){
         FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();

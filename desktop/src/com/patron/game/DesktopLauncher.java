@@ -11,7 +11,7 @@ public class DesktopLauncher {
 		config.setResizable(false);
 //		config.setWindowedMode(1920,1080);
 		config.setTitle("Patron Game");
-		config.setMaximized(true);
+ 		config.setMaximized(true);
 
 		new Lwjgl3Application(new GameProgress(), config);
 	}
