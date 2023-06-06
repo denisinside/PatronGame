@@ -1,6 +1,7 @@
 package com.patron.game;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Screen;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,25 +10,24 @@ import java.util.stream.Collectors;
 
 public class GameProgress extends Game {
     static ArrayList<Card> playerDeck;
-    ArrayList<Card> allCards;
+    public static ArrayList<Card> allCards;
     public static Player player;
     boolean died = false;
-    int room = 0;
-    int lastEnemyIndex = -1;
-    double commonChance = 0.6, rareChance = 0.3, legendaryChance = 0.1;
+    static int room = 0;
+    static int lastEnemyIndex = -1;
+    //double commonChance = 0.6, rareChance = 0.3, legendaryChance = 0.1;
     int cardRewardAmount = 3;
-    Random r = new Random();
+    static Random r = new Random();
+    public static Game game;
     public GameProgress(){
-
+        game = this;
     }
-    private void generateFight(){
+    public static Screen generateFight(){
         ArrayList<Enemy> enemies = new ArrayList<>(Arrays.asList(getEnemiesForFight()));
-        Fight fight1 = new Fight(enemies,playerDeck, this);
-        setScreen(fight1);
-        //if (fight1.loose) died = true;
-        //else  getCardReward();
+        Fight fight1 = new Fight(enemies,playerDeck,game);
+        return fight1;
     }
-        private Enemy[] getEnemiesForFight(){
+        private static Enemy[] getEnemiesForFight(){
             int enemiesIndex;
             if(room < 10){
                 do {
@@ -61,31 +61,6 @@ public class GameProgress extends Game {
             }
             return null;
         }
-    private void getCardReward(){
-        System.out.println("Твоя нагорода за бій: ");
-        Card[] choice = new Card[cardRewardAmount];
-        ArrayList<Card> commons = allCards.stream().filter(x -> x.rarity == Rarity.COMMON).collect(Collectors.toCollection(ArrayList::new));
-        ArrayList<Card> rares = allCards.stream().filter(x -> x.rarity == Rarity.RARE).collect(Collectors.toCollection(ArrayList::new));
-        ArrayList<Card> legendary = allCards.stream().filter(x -> x.rarity == Rarity.LEGENDARY).collect(Collectors.toCollection(ArrayList::new));
-
-        try {
-            for (int i = 0; i < choice.length; i++){
-                double random = Math.random();
-                System.out.println(random);
-                if (random >= 1-legendaryChance && !legendary.isEmpty()) choice[i] = (Card) legendary.remove(r.nextInt(legendary.size())).clone();
-                else if (random >= 1-rareChance && !rares.isEmpty()) choice[i] = (Card) rares.remove(r.nextInt(rares.size())).clone();
-                else choice[i] = (Card) commons.remove(r.nextInt(commons.size())).clone();
-            }
-        }catch (CloneNotSupportedException ignored){}
-        int index = 0;
-        for (Card card : choice){
-            System.out.println(++index + ". " + card);
-        }
-        System.out.println("Напиши яку карту хочеш обрати або інше число щоб скіпнути");
-        index = DataInput.getInt()-1;
-        if(index < 0 || index > choice.length) return;
-        else playerDeck.add(choice[index]);
-    }
 
     private void loadAllCards(){
         allCards = new ArrayList<>();
@@ -98,7 +73,11 @@ public class GameProgress extends Game {
         allCards.add(CardFactory.createCard("Собаче панування"));
         allCards.add(CardFactory.createCard("Хвіст-бумеранг"));
         allCards.add(CardFactory.createCard("Загострений хвіст"));
-        allCards.add(CardFactory.createCard("Подвійний удар"));
+        allCards.add(CardFactory.createCard("Безглуздий удар"));
+        allCards.add(CardFactory.createCard("У слабке місце"));
+        allCards.add(CardFactory.createCard("Відчайдушний удар"));
+        allCards.add(CardFactory.createCard("Різанина"));
+        allCards.add(CardFactory.createCard("Айкідо"));
     }
     private void makeStartDeck(){
         playerDeck = new ArrayList<>();
@@ -122,11 +101,12 @@ public class GameProgress extends Game {
         Effect.player = player;
         Enemy.player = player;
         Fight.player = player;
+        MoveDisplay.init();
         loadAllCards();
         makeStartDeck();
 
        //do {
-            generateFight();
+            setScreen(generateFight());
        // } while (!died);
 
     }

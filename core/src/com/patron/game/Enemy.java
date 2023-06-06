@@ -1,5 +1,8 @@
 package com.patron.game;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -22,10 +25,11 @@ public class Enemy {
     protected int strengthBuff = 0;
     protected int defendBuff = 0;
 
-    public EnemyActor enemyActor;
-    public Enemy(int hp){
+    public EnemyActor actor;
+    public Enemy(String name,int hp){
+        this.name = name;
         maxHealth = health = hp;
-        enemyActor = new EnemyActor(200,300,this);
+        actor = new EnemyActor(200,300,this);
     }
 
     public void shuffleMoves(Action[]attacks, Action[]blocks){
@@ -55,6 +59,8 @@ public class Enemy {
                     next = true;
                 }
         }
+
+        actor.moveDisplay.setMove(enemyMoves.get(moveIndex));
     }
     public void addEffect(Effect effect){
         for (Effect e : effects) {
@@ -67,13 +73,19 @@ public class Enemy {
             Effect effectCopy = (Effect) effect.clone();
             effectCopy.setEnemy(this);
             effects.add(effectCopy);
+            actor.effectPanel.addEffect(effectCopy);
         } catch (CloneNotSupportedException g) {
             g.printStackTrace();
         }
     }
     public void heal(int healAmount) {
-        if (healAmount + health <= maxHealth) health += healAmount;
+        if (healAmount + health <= maxHealth){
+            health += healAmount;
+        }
         else health = maxHealth;
+        actor.healthBar.setCurrentValue(health);
+        actor.addValue(healAmount, Color.GREEN, EnemyActor.valueType.HEAL);
+
     }
     public void effectCheck(){
         Iterator<Effect> iterator = effects.iterator();
@@ -85,9 +97,12 @@ public class Enemy {
             if (!effect.isPermanent && effect.moves <= 0){
                 effect.setBase();
                 iterator.remove();
+                actor.effectPanel.removeEffect(effect);
             }
+            System.out.println(effect);
             if(health <= 0) return;
         }
+        actor.healthBar.setCurrentValue(health);
     }
     public void getDamage(int damage){
         damage = (int)Math.round(damage*damageMultiplier);
@@ -98,42 +113,48 @@ public class Enemy {
                 armor = 0;
             }
             health -= damage;
-            enemyActor.healthBar.showArmor(false);
+            actor.addValue(damage, Color.PINK, EnemyActor.valueType.DAMAGE);
+            actor.healthBar.showArmor(false);
         }
-        enemyActor.healthBar.setArmor(armor);
+        actor.healthBar.setArmor(armor);
     }
     public void makeMove(){
         switch (enemyMoves.get(moveIndex).getMove()){
-            case ATTACK: attack(enemyMoves.get(moveIndex)); break;
+            case EFFECTED_ATTACK:
+            case BUFFED_ATTACK:
+            case ATTACK:
+                attack(enemyMoves.get(moveIndex)); break;
             case DEFEND: defend(enemyMoves.get(moveIndex)); break;
-            case IMPACT: castImpact(enemyMoves.get(moveIndex));
+            case IMPACT: castImpact(enemyMoves.get(moveIndex)); break;
+            case DEBUFF: castDebuff(enemyMoves.get(moveIndex)); break;
+            case BUFF: castBuff(enemyMoves.get(moveIndex));
         }
+        Fight.checkKill();
         moveIndex = (moveIndex + 1) % enemyMoves.size();
+        actor.moveDisplay.setMove(enemyMoves.get(moveIndex));
     }
     public Move nextMove(){
-        /*switch (enemyMoves.get(moveIndex).getMove()){
-            case ATTACK: *//*if (enemyMoves.get(moveIndex).isWithEffect) return Move.EFFECTED_ATTACK;
-                         else return Move.ATTACK;*//*
-                return Move.ATTACK;
-            case DEFEND: *//*if (enemyMoves.get(moveIndex).isWithEffect)  return Move.BUFFED_DEFENSE;
-                         else return Move.DEFEND;*//*
-                return  Move.DEFEND;
-        }*/
         return enemyMoves.get(moveIndex).getMove();
     }
     public void castImpact(Action impact){
-        if(impact.name.equals("Негативний вплив")){
-            for (Effect e : impact.effects) player.addEffect(e);
-        }else if(impact.name.equals("Позитивний вплив")){
-            if (!impact.toAll)   for (Effect e : impact.effects) addEffect(e);
-            else for (Enemy enemy : Fight.enemies){
-                for (Effect e : impact.effects) enemy.addEffect(e);
-            }
+
+    }
+    public void castBuff(Action impact){
+        if (!impact.toAll)   for (Effect e : impact.effects) addEffect(e);
+        else for (Enemy enemy : Fight.enemies){
+            for (Effect e : impact.effects) enemy.addEffect(e);
         }
+    }
+    public void castDebuff(Action impact){
+        for (Effect e : impact.effects) player.addEffect(e);
     }
     public void attack(Action attack){
         int damage = (int) Math.round((attack.getSummaryValue()+strengthBuff)*attackMultiplier);
         player.getDamage(damage);
+        actor.enemySprite.addAction(Actions.sequence(
+                Actions.moveBy(-100,0,0.8f),
+                Actions.moveBy(100,0,0.8f)
+        ));
         if (attack.isWithEffect)
             for (Effect e : attack.effects)player.addEffect(e);
     }
@@ -147,19 +168,14 @@ public class Enemy {
             block.toAll = false;
             for (Enemy enemy : Fight.enemies) enemy.defend(block);
         }
-        enemyActor.healthBar.setArmor(armor);
-        enemyActor.healthBar.showArmor(true);
+        actor.healthBar.setArmor(armor);
+        actor.healthBar.showArmor(true);
     }
-    public void printStats() {
-        String values = null;
-        String format = "%-20s%-20s%-20s%-20s%n";
-        System.out.format(format, "Name", "Health", nextMove(), "Armor");
-        System.out.format(format, "----", "------", "------", "-------");
-        if (nextMove() == Move.ATTACK) values = (int)Math.round(enemyMoves.get(moveIndex).getSummaryValue()*attackMultiplier) + " x " + enemyMoves.get(moveIndex).count;
-        if (nextMove() == Move.DEFEND) values = (int)Math.round(enemyMoves.get(moveIndex).getSummaryValue()*defendMultiplier)+ " x " + enemyMoves.get(moveIndex).count;
-        System.out.format(format, name, health+"/"+ maxHealth, values, armor);
-        for (Effect effect : effects) System.out.println(effect);
-        System.out.println("\n");
+    public int getActualAttackDamage(){
+        return (int)Math.round(enemyMoves.get(moveIndex).getSummaryValue()*attackMultiplier);
+    }
+    public int getActualBlock(){
+        return (int)Math.round(enemyMoves.get(moveIndex).getSummaryValue()*defendMultiplier);
     }
     public boolean ifHas(Effect effect){
         for (Effect e : effects) if (e.getClass() == effect.getClass()) return true;
@@ -184,6 +200,7 @@ public class Enemy {
     }
     public void setArmor(int armor) {
         this.armor = armor;
+        actor.healthBar.showArmor(armor!=0);
     }
 
     public void addArmor(int armor) {
@@ -209,11 +226,30 @@ public class Enemy {
     public void setStrengthBuff(int strengthBuff) {
         this.strengthBuff = strengthBuff;
     }
+
+    public void death() {
+        actor.enemySprite.addAction(Actions.sequence(
+                Actions.parallel(
+                    Actions.moveBy(actor.width/2, actor.height/2,2f),
+                    Actions.sizeTo(actor.width/20, actor.height/20,2f),
+                    Actions.fadeOut(2)),
+                Actions.run(()->{
+                    actor.addAction(Actions.removeActor());
+                    actor.moveDisplay.addAction(Actions.removeActor());
+                    for (Effect effect : effects)
+                        effect.effectIcon.addAction(Actions.removeActor());
+                })
+        ));
+
+    }
 }
 enum Move {
     ATTACK,
-    BUFFED_DEFENSE,
-    DEFEND,
+    BUFFED_ATTACK,
     EFFECTED_ATTACK,
+    DEFEND,
+    BUFFED_DEFENSE,
+    BUFF,
+    DEBUFF,
     IMPACT
 }
