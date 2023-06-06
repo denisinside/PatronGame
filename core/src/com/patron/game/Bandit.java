@@ -2,8 +2,7 @@ package com.patron.game;
 
 public class Bandit extends Enemy{
     public Bandit(){
-        super(random.nextInt(6) + 30);
-        name = "Бандит";
+        super("Бандит",random.nextInt(6) + 30);
 
         Attack[]attacks = {
                  new Attack(random.nextInt(4) + 6),
@@ -17,8 +16,7 @@ public class Bandit extends Enemy{
 }
 class RadioactiveRat extends Enemy{
     public RadioactiveRat(){
-        super( random.nextInt(7) + 27);
-        name = "Радіоактивний щур";
+        super( "Радіоактивний щур",random.nextInt(7) + 27);
         Attack[]attacks = {
                 new Attack(random.nextInt(1) + 1, new Effect[]{new RadiationEffect(3)}),
                 new Attack(random.nextInt(2) + 1, new Effect[]{new RadiationEffect(2)}),
@@ -34,8 +32,8 @@ class RadioactiveRat extends Enemy{
 
 class FireBagSoldier extends Enemy{
     public FireBagSoldier(){
-        super(random.nextInt(5) + 14);
-        name = "Солдатик-солдат";
+        super("Солдатик-солдат",random.nextInt(5) + 14);
+
         Attack[]attacks = {
                 new Attack(random.nextInt(4) + 5),
                 new Attack(random.nextInt(5) + 6)};
@@ -47,8 +45,8 @@ class FireBagSoldier extends Enemy{
 }
 class FireBagMedic extends Enemy{
     public FireBagMedic(){
-        super(random.nextInt(4) + 12);
-        name = "Солдатик-медик";
+        super("Солдатик-медик",random.nextInt(4) + 12);
+
         Attack[] attacks = {
                 new Attack(random.nextInt(3) + 3, new Effect[]{new WeaknessEffect(2)})};
         Impact[] impacts = {
@@ -61,20 +59,20 @@ class FireBagMedic extends Enemy{
 }
 class FireBagTank extends Enemy {
     public FireBagTank() {
-        super(random.nextInt(3) + 10);
-        name = "Солдатик-броневик";
+        super("Солдатик-броневик",random.nextInt(3) + 10);
 
         enemyMoves.add(new Defend(random.nextInt(4)+4));
         enemyMoves.add(new Defend(random.nextInt(2)+3,true));
+        actor.moveDisplay.setMove(enemyMoves.get(moveIndex));
     }
 }
 class FireBagSniper extends Enemy {
     public FireBagSniper() {
-        super(random.nextInt(3) + 13);
-        name = "Солдатик-снайпер";
+        super("Солдатик-снайпер",random.nextInt(3) + 13);
 
         enemyMoves.add(new Defend(random.nextInt(4)+5));
         enemyMoves.add(new Impact());
         enemyMoves.add(new Attack(15));
+        actor.moveDisplay.setMove(enemyMoves.get(moveIndex));
     }
 }
