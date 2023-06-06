@@ -235,6 +235,7 @@ public class CardActor extends Actor {
 class EnergyActor extends Actor {
     int energyAmount;
     Sprite energyIcon;
+    Sprite numberIcon;
     BitmapFont font;
 
     public EnergyActor(int energyAmount, int width, int height) {

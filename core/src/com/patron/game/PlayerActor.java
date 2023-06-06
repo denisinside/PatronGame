@@ -24,7 +24,7 @@ public class PlayerActor extends Actor {
         healthBar = new HealthBar(getWidth(),20,75);
 
         // потім шукати буде по клас нейму, але зараз буде 1 картинка
-        playerSprite = new Sprite(new Texture(Gdx.files.internal("patron.png")));
+        playerSprite = new Sprite(new Texture(Gdx.files.internal("Patron_Idle.png")));
     }
     @Override
     public void act(float delta) {
