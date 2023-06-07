@@ -1,29 +1,31 @@
 package com.patron.game;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-enum Rarity{
+enum Rarity {
     STATUS,
     CURSE,
     COMMON,
     RARE,
     LEGENDARY
 }
-enum UseType{
+
+enum UseType {
     DEFENSE,
     HEAL,
     DEBUFF,
     BUFF
 }
 
-public class Card implements Cloneable{
+public class Card implements Cloneable {
     protected static Player player;
-    protected static Random rnd  = new Random();
+    protected static Random rnd = new Random();
+    public CardActor cardActor;
     protected String name, description;
-    protected int cost,  costNow;
+    protected int cost, costNow;
     protected int enemyDamage, playerDamage;
     protected int skillStrength;
     protected boolean burning, ghostly, disposable, playable = true;
@@ -31,24 +33,28 @@ public class Card implements Cloneable{
     protected String target; // all, random, one, player
     protected Effect[] effects = null;
     protected Rarity rarity;
-    public CardActor cardActor;
-    public Card(String name, String description, Rarity rarity, int cost){
+
+    public Card(String name, String description, Rarity rarity, int cost) {
         this.cost = cost;
         this.name = name;
         this.description = description;
         this.rarity = rarity;
         costNow = cost;
-        cardActor = new CardActor(this,100,100);
+        cardActor = new CardActor(this, 100, 100);
     }
 
-    private void init(){
-        switch (name){
-            case "Різанина": ghostly = true; break;
+    private void init() {
+        switch (name) {
+            case "Різанина":
+                ghostly = true;
+                break;
             default:
         }
     }
-    public void use(Enemy enemy, ArrayList<Enemy> enemies){
+
+    public void use(Enemy enemy, ArrayList<Enemy> enemies) {
     }
+
     public String getName() {
         return name;
     }
@@ -74,47 +80,55 @@ public class Card implements Cloneable{
     }
 
     public int getPlayerDamage() {
-        return (int)Math.round(playerDamage*player.getDamageMultiplier());
+        return (int) Math.round(playerDamage * player.getDamageMultiplier());
     }
-    public String getActualDescription(){
+
+    public String getActualDescription() {
         String result = description;
-        result = result.replaceAll("enemyDamage", ""+ getEnemyDamageWithBuff());
-        result = result.replaceAll("armor", ""+getPlayerDefenseWithBuff());
-        result = result.replaceAll("playerDamage", ""+getPlayerDamage());
+        result = result.replaceAll("enemyDamage", "" + getEnemyDamageWithBuff());
+        result = result.replaceAll("armor", "" + getPlayerDefenseWithBuff());
+        result = result.replaceAll("playerDamage", "" + getPlayerDamage());
 
         return result;
     }
-    protected int getEnemyDamageWithBuff(){
-        return (int)Math.round((enemyDamage+player.getStrengthBuff())*player.getAttackMultiplier());
+
+    protected int getEnemyDamageWithBuff() {
+        return (int) Math.round((enemyDamage + player.getStrengthBuff()) * player.getAttackMultiplier());
     }
-    protected int getPlayerDefenseWithBuff(){
-        return (int)Math.round((skillStrength+player.getDefendBuff())*player.getDefendMultiplier());
+
+    protected int getPlayerDefenseWithBuff() {
+        return (int) Math.round((skillStrength + player.getDefendBuff()) * player.getDefendMultiplier());
     }
-    protected void pickUpCard(int amount){
+
+    protected void pickUpCard(int amount) {
         Fight.cardDeal(amount);
     }
+
     public String toString() {
         return "| " + name + " | " + (playable ? cost : 'x') + " | " + getActualDescription();
     }
 }
 
-class AttackCard extends Card{
+class AttackCard extends Card {
     int attackCount;
-    public AttackCard(String name, String description,Rarity rarity,  int energy, int damage, String target, int attackCount){
-        super(name, description,  rarity,energy);
+
+    public AttackCard(String name, String description, Rarity rarity, int energy, int damage, String target, int attackCount) {
+        super(name, description, rarity, energy);
         this.enemyDamage = damage;
         this.attackCount = attackCount;
         this.target = target;
     }
-    public AttackCard(String name, String description,Rarity rarity,  int energy, int damage, String target, int attackCount, Effect[]effects){
+
+    public AttackCard(String name, String description, Rarity rarity, int energy, int damage, String target, int attackCount, Effect[] effects) {
         super(name, description, rarity, energy);
         this.enemyDamage = damage;
         this.attackCount = attackCount;
         this.effects = effects;
         this.target = target;
     }
-    private void uniqueUse(Enemy enemy, ArrayList<Enemy> enemies){
-        switch (name){
+
+    private void uniqueUse(Enemy enemy, ArrayList<Enemy> enemies) {
+        switch (name) {
             case "Айкідо":
                 pickUpCard(1);
                 break;
@@ -122,7 +136,7 @@ class AttackCard extends Card{
                 Fight.draw.add(rnd.nextInt(Fight.draw.size()), CardFactory.getStatus("Запаморочення"));
                 break;
             case "У слабке місце":
-                if (enemy.ifHas(new VulnerabilityEffect(1))) player.setEnergy(player.getEnergy()+1);
+                if (enemy.ifHas(new VulnerabilityEffect(1))) player.setEnergy(player.getEnergy() + 1);
                 break;
             case "Відчайдушний удар":
                 Fight.draw.add(rnd.nextInt(Fight.draw.size()), CardFactory.getStatus("Рана"));
@@ -136,10 +150,11 @@ class AttackCard extends Card{
             default:
         }
     }
+
     @Override
     public void use(Enemy enemy, ArrayList<Enemy> enemies) {
         ArrayList<Enemy> enemies1;
-        if (enemies != null)enemies1 = new ArrayList<>(enemies);
+        if (enemies != null) enemies1 = new ArrayList<>(enemies);
         else enemies1 = new ArrayList<>();
         if (target.equals("one")) {
             enemies1.clear();
@@ -150,7 +165,7 @@ class AttackCard extends Card{
                 for (int i = 0; i < attackCount; i++) {
                     enemy1.getDamage(getEnemyDamageWithBuff());
                 }
-                if (effects != null) for (Effect effect : effects){
+                if (effects != null) for (Effect effect : effects) {
                     try {
                         Effect effectCopy = (Effect) effect.clone();
                         effectCopy.setEnemy(enemy1);
@@ -161,55 +176,67 @@ class AttackCard extends Card{
                     }
                 }
             }
-        }else {
-            for (int i = 0; i < attackCount; i++){
+        } else {
+            for (int i = 0; i < attackCount; i++) {
                 Enemy temp = enemies1.get(rnd.nextInt(enemies1.size()));
                 temp.getDamage(getEnemyDamageWithBuff());
-                if (effects != null) for (Effect effect : effects){
+                if (effects != null) for (Effect effect : effects) {
                     effect.setEnemy(enemy);
                     temp.addEffect(effect);
                 }
             }
         }
-        uniqueUse(enemy,enemies1);
+        uniqueUse(enemy, enemies1);
+
+        player.actor.addAction(Actions.sequence(
+                Actions.moveBy(200, 0, (float) (1)),
+                Actions.moveBy(-200, 0, (float) (1))
+        ));
     }
 
 }
-class SkillCard extends Card{
+
+class SkillCard extends Card {
     int blockCount = 1;
-    public SkillCard(String name, String description,Rarity rarity,  int energy, UseType type, String target, int skillStrength){
+
+    public SkillCard(String name, String description, Rarity rarity, int energy, UseType type, String target, int skillStrength) {
         super(name, description, rarity, energy);
         this.skillStrength = skillStrength;
         this.type = type;
         this.target = target;
     }
-    public SkillCard(String name, String description,Rarity rarity,  int energy, UseType type, String target, Effect[]effects){
+
+    public SkillCard(String name, String description, Rarity rarity, int energy, UseType type, String target, Effect[] effects) {
         super(name, description, rarity, energy);
         this.effects = effects;
         this.type = type;
         this.target = target;
     }
+
     @Override
-    public void use(Enemy enemy, ArrayList<Enemy> enemies){
-        if (target.equals("player")) switch (type){
-            case DEFENSE: for(int i = 0; i < blockCount; i++) player.addArmor(getPlayerDefenseWithBuff());
-            break;
-            case HEAL: player.heal(skillStrength); break;
+    public void use(Enemy enemy, ArrayList<Enemy> enemies) {
+        if (target.equals("player")) switch (type) {
+            case DEFENSE:
+                for (int i = 0; i < blockCount; i++) player.addArmor(getPlayerDefenseWithBuff());
+                break;
+            case HEAL:
+                player.heal(skillStrength);
+                break;
             case BUFF:
             case DEBUFF:
                 break;
         }
-        if (effects != null )for (Effect effect : effects) player.addEffect(effect);
+        if (effects != null) for (Effect effect : effects) player.addEffect(effect);
 
     }
 }
 
-class StatusCard extends Card{
-    public StatusCard(String name, String description, boolean playable){
-        super(name,description,Rarity.STATUS, 1);
+class StatusCard extends Card {
+    public StatusCard(String name, String description, boolean playable) {
+        super(name, description, Rarity.STATUS, 1);
         this.playable = playable;
         if (name.equals("Запаморочення")) disposable = true;
-        if (name.equals("Опромінювання")){
+        if (name.equals("Опромінювання")) {
             burning = true;
             disposable = true;
         }
@@ -217,8 +244,8 @@ class StatusCard extends Card{
     }
 
     @Override
-    public void use(Enemy enemy, ArrayList<Enemy> enemies){
-        switch (name){
+    public void use(Enemy enemy, ArrayList<Enemy> enemies) {
+        switch (name) {
             case "Опік":
                 playerDamage = 2;
                 player.getDamage(getPlayerDamage());
@@ -230,15 +257,16 @@ class StatusCard extends Card{
         }
     }
 }
-class CurseCard extends Card{
-    public CurseCard(String name, String description){
+
+class CurseCard extends Card {
+    public CurseCard(String name, String description) {
         super(name, description, Rarity.CURSE, 1);
         playable = name.equals("Зацикленість");
     }
 
     @Override
-    public void use(Enemy enemy, ArrayList<Enemy> enemies){
-        switch (name){
+    public void use(Enemy enemy, ArrayList<Enemy> enemies) {
+        switch (name) {
             case "Сором":
                 player.addEffect(new FragilityEffect(2));
                 break;

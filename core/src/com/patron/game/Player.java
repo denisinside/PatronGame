@@ -1,5 +1,7 @@
 package com.patron.game;
 
+import com.badlogic.gdx.graphics.Color;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -39,6 +41,7 @@ public class Player {
             Effect effectCopy = (Effect) effect.clone();
             effectCopy.setEnemy(null);
             effects.add(effectCopy);
+            actor.effectPanel.addEffect(effectCopy);
             if (effectCopy.isInstant) effectCopy.effectResult();
         } catch (CloneNotSupportedException g) {
             g.printStackTrace();
@@ -54,13 +57,17 @@ public class Player {
             if (!effect.isPermanent && effect.moves <= 0){
                 effect.setBase();
                 iterator.remove();
+                actor.effectPanel.removeEffect(effect);
             }
         }
+        actor.healthBar.setCurrentValue(health);
     }
     public void heal(int healAmount) {
         if (healAmount + health <= maxHealth) health += healAmount;
         else health = maxHealth;
         actor.healthBar.setCurrentValue(health);
+        actor.addValue(healAmount, Color.GREEN, EnemyActor.valueType.HEAL);
+
     }
     public void getDamage(int damage){
         damage = (int)Math.round(damage*damageMultiplier);
@@ -70,8 +77,11 @@ public class Player {
                 damage -= armor;
                 armor = 0;
             }
-           if (health - damage >= 0) health -= damage;
+           if (health - damage >= 0){
+               health -= damage;
+           }
            else  health = 0;
+            actor.addValue(damage, Color.PINK, EnemyActor.valueType.DAMAGE);
            actor.healthBar.showArmor(false);
         }
         actor.healthBar.setArmor(armor);
@@ -88,6 +98,8 @@ public class Player {
 
     public void setArmor(int armor) {
         this.armor = armor;
+        actor.healthBar.setArmor(this.armor);
+        actor.healthBar.showArmor(armor != 0);
     }
 
     public int getMaxHealth() {
@@ -136,6 +148,7 @@ public class Player {
 
     public void setHealth(int health) {
         this.health = health;
+        actor.healthBar.setCurrentValue(health);
     }
 
     public void setMaxEnergy(int maxEnergy) {

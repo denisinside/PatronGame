@@ -2,9 +2,11 @@ package com.patron.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Intersector;
@@ -13,19 +15,22 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 
+
+
 public class CardActor extends Actor {
-    public static BitmapFont fontNameBasic, fontDescriptionBasic;
-    public static BitmapFont fontNameBig, fontDescriptionBig;
+    public static float cardWidth = 150, cardHeight = 225;
+    public BitmapFont fontName, fontDescription;
     public Card card;
     public int number;
-    boolean selected = false;
-    EnergyActor energyActor;
-    public static float cardWidth = 150,cardHeight = 225;
     public float xPos, yPos, offsetX = 4, offsetY = (float) (4);
+    boolean selected = false;
+    private EnergyActor energyActor;
     private Sprite cardTemplateTexture, cardImageTexture;
     private Rectangle textBounds;
+    private Label name,description;
 
 
     public CardActor(Card card, float x, float y) {
@@ -33,7 +38,16 @@ public class CardActor extends Actor {
 
         this.card = card;
 
-        cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("TALANT.png")));
+        if (card instanceof AttackCard)
+            cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("ATTACK_CARD.png")));
+        if (card instanceof SkillCard)
+            cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("SKILL.png")));
+        if (card instanceof CurseCard)
+            cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("CURSE.png")));
+        if (card instanceof StatusCard)
+            cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("STATUS.png")));
+       // if (card instanceof TalantCard)
+       //     cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("TALANT.png")));
         cardImageTexture = new Sprite(new Texture(Gdx.files.internal("example.jpg")));
         energyActor = new EnergyActor(card.cost, 100, 100);
 
@@ -42,9 +56,51 @@ public class CardActor extends Actor {
         yPos = y;
         setDraggable(true);
 
+        FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        fontParameter.characters = Fonts.characters;
+        fontParameter.size = 14;
+        fontParameter.borderWidth = 2;
+        fontName = new FreeTypeFontGenerator(Gdx.files.internal("Albionic.ttf")).generateFont(fontParameter);
+        fontName.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        fontParameter.size = 14;
+        fontDescription = new FreeTypeFontGenerator(Gdx.files.internal("Albionic.ttf")).generateFont(fontParameter);
+        fontDescription.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+
+        name = new Label(card.getName(),new Label.LabelStyle(fontName, Color.WHITE));
+        name.setAlignment(Align.center);
+        name.setWrap(false);
+
+        description = new Label(card.getActualDescription(),new Label.LabelStyle(fontDescription, Color.WHITE));
+        description.setAlignment(Align.center);
+        description.setWrap(true);
     }
-    public void afterUsing(){
-        Fight.player.setEnergy( Fight.player.getEnergy() - card.getCostNow());
+
+    private float calculateFontSize(Label label,String text) {
+        GlyphLayout layout = new GlyphLayout();
+        float fontSize = 1.5f;
+
+        while (fontSize > 0) {
+            label.setScale(fontSize);
+            label.getStyle().font.getData().setScale(fontSize);
+            layout.setText(label.getStyle().font, text);
+
+            if (layout.width <= getWidth()*0.85) {
+                return fontSize;
+            }
+            fontSize -= 0.1;
+        }
+        return 0.1f;
+    }
+    public static void setFonts() {
+
+
+        Fonts.albionicFontGenerator.dispose();
+    }
+
+    public void afterUsing() {
+        Fight.player.setEnergy(Fight.player.getEnergy() - card.getCostNow());
         Fight.playerEnergy.setEnergyAmount(Fight.player.getEnergy());
         if (card.burning) Fight.inHand.remove(card);
         else if (card.disposable) {
@@ -55,23 +111,14 @@ public class CardActor extends Actor {
             Fight.inHand.remove(card);
         }
         addAction(Actions.sequence(
-                Actions.moveTo(Gdx.graphics.getWidth()+getWidth(),-getHeight(),0.6f),
+                Actions.moveTo(Gdx.graphics.getWidth() + getWidth(), -getHeight(), 0.6f),
                 Actions.run(() -> {
                     Fight.cardActors.removeActor(CardActor.this);
                     Fight.centerCardDeck();
                 })
         ));
+        Fight.checkKill();
 
-    }
-
-    public static void setFonts() {
-
-        fontNameBasic = Fonts.ALBIONIC_BASIC_NAME;
-        fontNameBig = Fonts.ALBIONIC_LARGE_NAME;
-        fontDescriptionBasic = Fonts.ALBIONIC_BASIC_DESC;
-        fontDescriptionBig = Fonts.ALBIONIC_LARGE_DESC;
-
-        Fonts.albionicFontGenerator.dispose();
     }
 
     public void select() {
@@ -82,7 +129,7 @@ public class CardActor extends Actor {
         } else {
             selected = true;
             setZIndex(15);
-            addAction(Actions.sizeTo((float) (cardWidth*1.5), (float) (cardHeight*1.5), 0.5f));
+            addAction(Actions.sizeTo((float) (cardWidth * 1.5), (float) (cardHeight * 1.5), 0.5f));
             // я єбав (тут треба зробити, щоб інші селектід картки були вже не селектід)
             //upd ура зробив (залишу для історії)
             for (Actor cardActor : Fight.cardActors.getChildren()) {
@@ -93,7 +140,8 @@ public class CardActor extends Actor {
             }
         }
     }
-    public void setDraggable(boolean isDraggable){
+
+    public void setDraggable(boolean isDraggable) {
         clearListeners();
         if (isDraggable)
             addListener(new InputListener() {
@@ -122,7 +170,7 @@ public class CardActor extends Actor {
                 public void touchDragged(InputEvent event, float x, float y, int pointer) {
                     if (!isDragging && Math.abs(x - dragOffsetX) > 10 || Math.abs(y - dragOffsetY) > 10) {
                         isDragging = true;
-                        clearActions();
+                        if (getWidth() != cardWidth) addAction(Actions.sizeTo(cardWidth, cardHeight, 0.5f));
                     }
 
                     if (isDragging) {
@@ -138,61 +186,70 @@ public class CardActor extends Actor {
                         select();
 
                     } else {
-                        Rectangle cardBounds = new Rectangle(CardActor.this.getX(), CardActor.this.getY(), CardActor.this.getWidth(), CardActor.this.getHeight());
-                        boolean found = false;
-                        for (Actor actor : Fight.enemiesActors.getChildren()) {
-                            Rectangle clickedActorBounds = new Rectangle(actor.getX(), actor.getY(), actor.getWidth(), actor.getHeight());
-                            if (Intersector.intersectRectangles(cardBounds, clickedActorBounds, new Rectangle())) {
-                                if (card.getCostNow() <= Fight.player.getEnergy() && card.target != null && card.playable) {
-                                    found = true;
-                                    switch (card.target){
-                                        case "one":
-                                            card.use(((EnemyActor) actor).enemy,null);
-                                            afterUsing();
-                                            break;
-                                        case "random":
-                                        case "all":
-                                            card.use(null,Fight.enemies);
-                                            afterUsing();
-                                            break;
-                                        default: found = false;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                        if (!found){
-                            Rectangle clickedActorBounds = new Rectangle(Fight.player.actor.getX(), Fight.player.actor.getY(), Fight.player.actor.getWidth(), Fight.player.actor.getHeight());
-                            if (Intersector.intersectRectangles(cardBounds, clickedActorBounds, new Rectangle())) {
-                                if (card.getCostNow() <= Fight.player.getEnergy() && card.target != null && card.playable) {
-                                    found = true;
-                                    switch (card.target){
-                                        case "player":
-                                            card.use(null,null);
-                                            afterUsing();
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                        if (!found) addAction(Actions.moveTo(xPos, yPos, 0.5f));
+                        checkUsing();
                     }
                     isDragging = false;
                 }
             });
     }
 
+    public void checkUsing() {
+        Rectangle cardBounds = new Rectangle(CardActor.this.getX(), CardActor.this.getY(), CardActor.this.getWidth(), CardActor.this.getHeight());
+        boolean found = false;
+        for (Actor actor : Fight.enemiesActors.getChildren()) {
+            Rectangle clickedActorBounds = new Rectangle(actor.getX(), actor.getY(), actor.getWidth(), actor.getHeight());
+            if (Intersector.intersectRectangles(cardBounds, clickedActorBounds, new Rectangle())) {
+                if (card.getCostNow() <= Fight.player.getEnergy() && card.target != null && card.playable) {
+                    found = true;
+                    switch (card.target) {
+                        case "one":
+                            card.use(((EnemyActor) actor).enemy, null);
+                            afterUsing();
+                            break;
+                        case "random":
+                        case "all":
+                            card.use(null, Fight.enemies);
+                            afterUsing();
+                            break;
+                        default:
+                            found = false;
+                    }
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            Rectangle clickedActorBounds = new Rectangle(Fight.player.actor.getX(), Fight.player.actor.getY(), Fight.player.actor.getWidth(), Fight.player.actor.getHeight());
+            if (Intersector.intersectRectangles(cardBounds, clickedActorBounds, new Rectangle())) {
+                if (card.getCostNow() <= Fight.player.getEnergy() && card.target != null && card.playable) {
+                    found = true;
+                    switch (card.target) {
+                        case "player":
+                            card.use(null, null);
+                            afterUsing();
+                            break;
+                        default:
+                            found = false;
+                    }
+                }
+            }
+        }
+        if (!found) addAction(Actions.moveTo(xPos, yPos, 0.5f));
+    }
+
     @Override
     public void act(float delta) {
         super.act(delta);
-        offsetX = (cardWidth/8) * getWidth() / cardWidth;
-        offsetY = (float) ((cardHeight/2.6) * getHeight() / cardHeight);
+        offsetX = (cardWidth / 8) * getWidth() / cardWidth;
+        offsetY = (float) ((cardHeight / 2.6) * getHeight() / cardHeight);
         cardImageTexture.setBounds(getX() + offsetX, getY() + offsetY, 150 * getWidth() / 200, 150 * getHeight() / 300);
         cardTemplateTexture.setBounds(getX(), getY(), getWidth(), getHeight());
         energyActor.setBounds(getX(), getY() + getHeight() - energyActor.getHeight(), 75 * getWidth() / 200, 75 * getHeight() / 300);
         energyActor.act(delta);
 
         setBounds(getX(), getY(), getWidth(), getHeight());
+        name.setBounds((float) (getX() + offsetX*0.3), (float) (getY() + offsetY * 0.9), (float) ((cardWidth - offsetX*0.2 )* getWidth() / cardWidth), 0);
+        description.setBounds((float) (getX() + offsetX * 0.3), (float) (getY() + offsetY*0.1), (float) ((cardWidth - offsetX*0.2 )* getWidth() / cardWidth), (float) (getHeight()*0.3));
 
     }
 
@@ -207,19 +264,12 @@ public class CardActor extends Actor {
         cardTemplateTexture.draw(batch);
 
         // назва, опис картки
-        textBounds = new Rectangle(getX() + offsetX, (float) (getY() + offsetY * 0.95), 150 * getWidth() / cardWidth, 30);
+        name.setScale(calculateFontSize(name,card.getName()));
+        name.draw(batch,parentAlpha);
 
-        if (getWidth() >= cardWidth*1.5)
-            fontNameBig.draw(batch, card.getName(), textBounds.x, textBounds.y, textBounds.width, Align.center, true);
-        else
-            fontNameBasic.draw(batch, card.getName(), textBounds.x, textBounds.y, textBounds.width, Align.center, true);
-
-        textBounds = new Rectangle((float) (getX() + offsetX * 0.9), (float) (getY() + offsetY * 0.7), 160 * getWidth() / cardWidth, 0);
-        if (getWidth() >= cardWidth*1.5)
-            fontDescriptionBig.draw(batch, card.getActualDescription(), textBounds.x, textBounds.y, textBounds.width, Align.center, true);
-        else
-            fontDescriptionBasic.draw(batch, card.getActualDescription(), textBounds.x, textBounds.y, textBounds.width, Align.center, true);
-
+        description.setScale(calculateFontSize(name,card.getActualDescription()));
+        description.setText(card.getActualDescription());
+        description.draw(batch,parentAlpha);
 
         energyActor.draw(batch, parentAlpha);
     }
@@ -245,7 +295,7 @@ class EnergyActor extends Actor {
         setHeight(height);
 
         FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        fontParameter.size = 18;
+        fontParameter.size = 30;
         fontParameter.borderWidth = 2;
         font = new FreeTypeFontGenerator(Gdx.files.internal("Albionic.ttf")).generateFont(fontParameter);
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -260,7 +310,7 @@ class EnergyActor extends Actor {
         super.draw(batch, parentAlpha);
         energyIcon.draw(batch);
 
-        font.getData().setScale(getWidth()/50);
+        font.getData().setScale(getWidth() / 80);
         font.draw(batch, energyAmount + "", getX() + getWidth() / 5, getY() + getHeight() - getHeight() / 7, getWidth(), Align.center, true);
     }
 
@@ -270,6 +320,28 @@ class EnergyActor extends Actor {
         energyIcon.setBounds(getX(), getY(), getWidth(), getHeight());
         setBounds(getX(), getY(), getWidth(), getHeight());
 
+    }
+}
+
+class NextMoveButton extends Actor {
+    Sprite button;
+
+    public NextMoveButton() {
+        setBounds(Gdx.graphics.getWidth() / 2 + Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 5, 300, 100);
+        button = new Sprite(new Texture(Gdx.files.internal("nextmovebutton.png")));
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        super.draw(batch, parentAlpha);
+        button.draw(batch);
+        Fonts.ALBIONIC_LARGE_NAME.draw(batch, "Наступний хід", Gdx.graphics.getWidth() / 2 + Gdx.graphics.getWidth() / 3, (float) (Gdx.graphics.getHeight() / 5 + getHeight() / 1.5), getWidth(), Align.center, true);
+    }
+
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+        button.setBounds(getX(), getY(), getWidth(), getHeight());
     }
 }
 

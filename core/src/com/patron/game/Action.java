@@ -40,7 +40,9 @@ public abstract class Action{
     }
 
     public Move getMove(){
-        return  Move.ATTACK;
+        if (effects == null) return  Move.ATTACK;
+        else return Move.EFFECTED_ATTACK;
+
     }
     public int getSummaryValue() {
         return count *damage;
@@ -114,7 +116,9 @@ class Impact extends Action{
         else name = "Позитивний вплив";
     }
     public Move getMove(){
-        return  Move.IMPACT;
+        if (effects == null) return  Move.IMPACT;
+        else  if (effects[0].enemy == null) return  Move.DEBUFF;
+        else return  Move.BUFF;
     }
     public int getSummaryValue() {
         return 0;
