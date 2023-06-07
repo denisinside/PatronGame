@@ -380,9 +380,9 @@ class EffectPanel extends Actor{
         super.act(delta);
         int height = 0;
         for (EffectIcon actor : effectIcons){
-            int x = effectIcons.indexOf(actor,true)*50 > getWidth() ? effectIcons.indexOf(actor,true)*50 - (int)((effectIcons.size)-(getWidth()/50)) : effectIcons.indexOf(actor,true)*50;
-            int y = effectIcons.indexOf(actor,true)*50 > getWidth() ? 60*2 : 60;
-            actor.setPosition(getX()+x,getY()+y-60);
+            int x = effectIcons.indexOf(actor,true)*65 > getWidth() ? effectIcons.indexOf(actor,true)*65 - (int)((effectIcons.size)-(getWidth()/65)) : effectIcons.indexOf(actor,true)*65;
+            int y = effectIcons.indexOf(actor,true)*65 > getWidth() ? 60*2 : 60;
+            actor.setPosition(getX()+x,getY()+y-65);
             height = Math.max(height,y);
             actor.act(delta);
         }
@@ -401,8 +401,13 @@ class EffectPanel extends Actor{
             if (effect.effectType == EffectType.DEBUFF)
                 icon = new Sprite(new Texture(Gdx.files.internal("debuff_effect.png")));
             else
-                icon = new Sprite(new Texture(Gdx.files.internal("buff_effect.png")));
-            setSize(50,50);
+                icon = new Sprite(new Texture(Gdx.files.internal("C:\\Users\\п\\IdeaProjects\\Programming\\PatronGame\\assets\\icons\\Interface\\Effects\\Health_Buff_extended.png")));
+
+//             Якогось дідька при такій умові вибиває NullPointerException....
+//            else if (effect.effectType == EffectType.HEALTH_BUFF)
+//                icon = new Sprite(new Texture(Gdx.files.internal("C:\\Users\\п\\IdeaProjects\\Programming\\PatronGame\\assets\\icons\\Interface\\Effects\\Health_Buff_extended.png")));
+
+            setSize(65,65);
         }
         @Override
         public void draw(Batch batch, float parentAlpha) {
