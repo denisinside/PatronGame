@@ -403,6 +403,8 @@ class EffectPanel extends Actor{
                 icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Health_Buff.png")));
             else if(effect instanceof RadiationEffect)
                 icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Poison_debuff.png")));
+            else if(effect instanceof WeaknessEffect)
+                icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Weakness_debuff.png")));
             else
                 icon = new Sprite(new Texture(Gdx.files.internal("debuff_effect.png")));
 
