@@ -149,7 +149,7 @@ class CureEffect extends Effect{
     public CureEffect(int moves){
         super("Зцілення",false,moves);
         description = "Істота зі зціленням отримує ОЗ, наприкінці ходу зменшується на 1";
-        effectType = EffectType.HEALTH_BUFF;
+        effectType = EffectType.BUFF;
     }
     public CureEffect(Enemy enemy, int moves){
         super("Зцілення",false,moves);
@@ -192,6 +192,5 @@ class BleedingEffect extends Effect{
 }
 enum EffectType{
     BUFF,
-    HEALTH_BUFF,
     DEBUFF
 }

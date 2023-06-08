@@ -398,14 +398,13 @@ class EffectPanel extends Actor{
             tooltip = new Tooltip(effect.name,effect.description,this);
 
 
-            if (effect.effectType == EffectType.DEBUFF)
-                icon = new Sprite(new Texture(Gdx.files.internal("debuff_effect.png")));
-            else
-                icon = new Sprite(new Texture(Gdx.files.internal("C:\\Users\\п\\IdeaProjects\\Programming\\PatronGame\\assets\\icons\\Interface\\Effects\\Health_Buff_extended.png")));
 
-//             Якогось дідька при такій умові вибиває NullPointerException....
-//            else if (effect.effectType == EffectType.HEALTH_BUFF)
-//                icon = new Sprite(new Texture(Gdx.files.internal("C:\\Users\\п\\IdeaProjects\\Programming\\PatronGame\\assets\\icons\\Interface\\Effects\\Health_Buff_extended.png")));
+            if (effect instanceof CureEffect)
+                icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Health_Buff.png")));
+            else if(effect instanceof RadiationEffect)
+                icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Poison_debuff.png")));
+            else
+                icon = new Sprite(new Texture(Gdx.files.internal("debuff_effect.png")));
 
             setSize(65,65);
         }
