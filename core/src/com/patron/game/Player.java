@@ -42,6 +42,7 @@ public class Player {
             effectCopy.setEnemy(null);
             effects.add(effectCopy);
             actor.effectPanel.addEffect(effectCopy);
+            actor.addEffect(effect);
             if (effectCopy.isInstant) effectCopy.effectResult();
         } catch (CloneNotSupportedException g) {
             g.printStackTrace();
