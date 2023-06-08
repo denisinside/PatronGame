@@ -74,6 +74,7 @@ public class Enemy {
             effectCopy.setEnemy(this);
             effects.add(effectCopy);
             actor.effectPanel.addEffect(effectCopy);
+            actor.addEffect(effect);
         } catch (CloneNotSupportedException g) {
             g.printStackTrace();
         }
@@ -99,7 +100,6 @@ public class Enemy {
                 iterator.remove();
                 actor.effectPanel.removeEffect(effect);
             }
-            System.out.println(effect);
             if(health <= 0) return;
         }
         actor.healthBar.setCurrentValue(health);

@@ -25,6 +25,7 @@ public class EnemyActor extends Actor {
     Label name;
     float width, height, x, y;
     Array<Label> valuesDisplay;
+    Array<Actor> otherValues;
 
     static class EnemySprite extends Actor{
         Sprite enemySprite;
@@ -52,6 +53,7 @@ public class EnemyActor extends Actor {
         this.height = height;
         this.enemy = enemy;
         valuesDisplay = new Array<>();
+        otherValues = new Array<>();
 
         setWidth(width);
         setHeight(height+50);
@@ -87,6 +89,52 @@ public class EnemyActor extends Actor {
         DAMAGE,
         HEAL,
         EFFECT_DAMAGE
+    }
+    public void addEffect(Effect effect){
+        FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        fontParameter.characters = Fonts.characters;
+        fontParameter.size = 24;
+        fontParameter.borderWidth = 6;
+        BitmapFont font = Fonts.lisichkaComicFontGenerator.generateFont(fontParameter);
+        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        Label label = new Label(effect.name,new Label.LabelStyle(font,effect.color));
+        valuesDisplay.add(label);
+        label.setPosition(getX() + getWidth()/2- label.getWidth()/2, getY() + getHeight()/2);
+        label.addAction(Actions.alpha(0));
+
+        EffectPanel.EffectIcon effectIcon = new EffectPanel.EffectIcon(effect);
+        effectIcon.setPosition(getX(), getY()+Math.abs(getHeight()-getWidth()));
+        effectIcon.tooltip = null;
+        effectIcon.addAction(Actions.alpha(0));
+        otherValues.add(effectIcon);
+
+        label.setSize(150,150);
+        label.addAction(Actions.sequence(
+                Actions.parallel(
+                        Actions.moveBy(0,getHeight()/4,2f, Interpolation.fastSlow),
+                        Actions.sizeTo(120,120,2f, Interpolation.smooth),
+                        Actions.fadeIn(0.3f)
+                ),
+                Actions.fadeOut(0.2f),
+                Actions.run(()->{
+                    label.addAction(Actions.removeActor());
+                    valuesDisplay.removeValue(label,true);
+                })
+        ));
+        effectIcon.setSize(getWidth(),getWidth());
+        effectIcon.addAction(Actions.sequence(
+                Actions.parallel(
+                        Actions.moveTo(getX()-(getWidth()/10-getWidth())/2,getY()-(getWidth()/10-getWidth())/2,2f, Interpolation.fastSlow),
+                        Actions.sizeTo(getWidth()/10,getWidth()/10,2f, Interpolation.smooth),
+                        Actions.fadeIn(1.5f)
+                ),
+                Actions.fadeOut(0.2f),
+                Actions.run(()->{
+                    effectIcon.addAction(Actions.removeActor());
+                    otherValues.removeValue(effectIcon,true);
+                })
+        ));
     }
     public void addValue(int value, Color color, valueType valueType){
         FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -173,6 +221,11 @@ public class EnemyActor extends Actor {
             label.setBounds(label.getX(),label.getY(),label.getWidth(),label.getHeight());
             label.getStyle().font.getData().setScale(label.getWidth()/150);
         }
+        for (Actor actor : otherValues){
+            actor.act(delta);
+            actor.setColor(getColor());
+            actor.setBounds(actor.getX(),actor.getY(),actor.getWidth(),actor.getHeight());
+        }
     }
 
     @Override
@@ -190,6 +243,9 @@ public class EnemyActor extends Actor {
         name.draw(batch,parentAlpha);
         for (Label label : valuesDisplay){
             label.draw(batch,parentAlpha);
+        }
+        for (Actor actor : otherValues){
+            actor.draw(batch,parentAlpha);
         }
     }
 }
@@ -413,14 +469,15 @@ class EffectPanel extends Actor{
             super.draw(batch, parentAlpha);
             icon.draw(batch);
             Fonts.ICON_NUMBERS.draw(batch,effect.moves+"",getX()-getWidth()/4,getY()+getHeight()/4,getWidth(),Align.left,true);
-            tooltip.draw(batch,parentAlpha);
+            if (tooltip!=null) tooltip.draw(batch,parentAlpha);
 
         }
         @Override
         public void act(float delta) {
             super.act(delta);
+            icon.setColor(getColor());
             icon.setBounds(getX(),getY(),getWidth(),getHeight());
-            tooltip.act(delta);
+            if (tooltip!=null)tooltip.act(delta);
         }
 
 
