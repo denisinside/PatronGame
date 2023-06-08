@@ -36,6 +36,7 @@ public class Fight implements Screen {
     Game game;
     int move = 1;
     Timer timer = new Timer();
+    static Timer staticTimer = new Timer();
     SpriteBatch batch;
     Texture background;
     Sprite drawButton, discardButton;
@@ -49,14 +50,14 @@ public class Fight implements Screen {
         player.actor.effectPanel.effectIcons.clear();
         player.effects.clear();
 
-         win = loose = false;
-         rewardScene = null;
+        win = loose = false;
+        rewardScene = null;
 
 
         inHand = new ArrayList<>();
-         draw = new ArrayList<>(playerDeck);
-         discard = new ArrayList<>();
-         Collections.shuffle(draw);
+        draw = new ArrayList<>(playerDeck);
+        discard = new ArrayList<>();
+        Collections.shuffle(draw);
 
         background = new Texture(Gdx.files.internal("background1.png"));
         batch = new SpriteBatch();
@@ -71,20 +72,23 @@ public class Fight implements Screen {
     }
 
     protected static void cardDeal(int amount) {
-        System.out.println(amount);
         int step = amount % 2 == 1 ? (amount - 1) * (-210) + 100 : (amount - 2) * (-210);
         for (int i = 0; i < amount; i++) {
             step += 210;
 
-            if (draw.size() == 0) shuffleDeck();
-            inHand.add(draw.get(0));
+            if (draw.size() == 0) {
+                shuffleDeck(amount-i);
+                break;
+            } else {
+                inHand.add(draw.get(0));
 
-            draw.get(0).cardActor.setPos(-step, 10);
-            draw.get(0).cardActor.setSize(CardActor.cardWidth / 3, CardActor.cardHeight / 3);
+                draw.get(0).cardActor.setPos(-step, 10);
+                draw.get(0).cardActor.setSize(CardActor.cardWidth / 3, CardActor.cardHeight / 3);
 
-            cardActors.addActor(draw.get(0).cardActor);
+                cardActors.addActor(draw.get(0).cardActor);
 
-            draw.remove(0);
+                draw.remove(0);
+            }
         }
         centerCardDeck();
     }
@@ -104,11 +108,38 @@ public class Fight implements Screen {
         }
     }
 
-    private static void shuffleDeck() {
+    private static void shuffleDeck(int toDeal) {
         draw.clear();
-        Collections.shuffle(discard);
-        draw.addAll(discard);
-        discard.clear();
+        Gdx.input.setInputProcessor(null);
+        for (int i = 0; i < discard.size(); i++) {
+            stage.addActor(discard.get(i).cardActor);
+            int finalI = i;
+            staticTimer.scheduleTask(new Timer.Task() {
+                @Override
+                public void run() {
+                    System.out.println(finalI == discard.size()-1);
+                    discard.get(finalI).cardActor.addAction(Actions.sequence(
+                            Actions.parallel(
+                                    Actions.moveTo(Gdx.graphics.getWidth()/2-CardActor.cardWidth, 50, 0.75f, Interpolation.sine),
+                                    Actions.sizeTo(CardActor.cardWidth, CardActor.cardHeight, 0.75f, Interpolation.sine)
+                            ),
+                            Actions.parallel(
+                                    Actions.moveTo(-CardActor.cardWidth, 10, 0.75f, Interpolation.sine),
+                                    Actions.sizeTo(CardActor.cardWidth/3, CardActor.cardHeight/3, 0.75f, Interpolation.sine)
+                            ),
+                            finalI == discard.size()-1 ?  Actions.run(()->{
+                                System.out.println(discard.size() + "  " + finalI);
+                                draw.addAll(discard);
+                                discard.clear();
+                                Collections.shuffle(draw);
+                                cardDeal(toDeal);
+                                Gdx.input.setInputProcessor(stage);
+                            }) : Actions.delay(0)
+                    ));
+                }
+            },i*0.1f);
+
+        }
 
     }
 
@@ -145,7 +176,7 @@ public class Fight implements Screen {
 
                     Gdx.app.exit();
                 }
-            },3f);
+            }, 3f);
         }
     }
 
@@ -250,7 +281,7 @@ public class Fight implements Screen {
         stage.addActor(enemiesActors);
         stage.addActor(cardActors);
         stage.addActor(tooltipedActors);
-        stage.setDebugAll(true);
+        //stage.setDebugAll(true);
         addEnemiesToGroup();
         addButtons();
         stage.addActor(nextMoveButton);
@@ -276,8 +307,8 @@ public class Fight implements Screen {
         shapeRenderer.end();
 
         batch.begin();
-        Fonts.ALBIONIC_LARGE_NAME.draw(batch, draw.size() + "", (float) (drawButton.getX() + (drawButton.getWidth() * 0.8)), drawButton.getY() * 5, drawButton.getWidth() / 6, Align.center, true);
-        Fonts.ALBIONIC_LARGE_NAME.draw(batch, discard.size() + "", (float) (discardButton.getX() - (discardButton.getWidth() * 0.1)), discardButton.getY() * 5, discardButton.getWidth() / 6, Align.center, true);
+        Fonts.ALBIONIC_LARGE_NAME.draw(batch, draw.size() + "", (float) (drawButton.getX() + (drawButton.getWidth() * 0.8)), drawButton.getY() * 5, drawButton.getWidth() / 5, Align.center, true);
+        Fonts.ALBIONIC_LARGE_NAME.draw(batch, discard.size() + "", (float) (discardButton.getX() - (discardButton.getWidth() * 0.1)), discardButton.getY() * 5, discardButton.getWidth() / 5, Align.center, true);
 
         batch.end();
 
@@ -379,14 +410,14 @@ class RewardScene extends Stage {
     public RewardScene() {
         shapeRenderer = new ShapeRenderer();
         black = new EnemyActor.EnemySprite(new Sprite(new Texture(Gdx.files.internal("black.jpg"))));
-        black.setBounds(0,0,getWidth(),getHeight());
+        black.setBounds(0, 0, getWidth(), getHeight());
         black.addAction(Actions.alpha(0));
         addActor(black);
 
-        label = new Label("Обери нагороду за бій:",new Label.LabelStyle(Fonts.ALBIONIC_LARGE_NAME,Color.GOLD));
+        label = new Label("Обери нагороду за бій:", new Label.LabelStyle(Fonts.ALBIONIC_LARGE_NAME, Color.GOLD));
         label.addAction(Actions.alpha(0));
         label.setAlignment(Align.center);
-        label.setBounds(0,Gdx.graphics.getHeight() / 2 + CardActor.cardHeight * 2,getWidth(), label.getHeight());
+        label.setBounds(0, Gdx.graphics.getHeight() / 2 + CardActor.cardHeight * 2, getWidth(), label.getHeight());
         addActor(label);
 
         black.addAction(Actions.fadeIn(4f, Interpolation.smooth));
@@ -399,11 +430,12 @@ class RewardScene extends Stage {
             for (int i = 0; i < choice.length; i++) {
                 choice[i] = (Card) cards.remove(new Random().nextInt(cards.size())).clone();
             }
-        } catch (CloneNotSupportedException ignored) {}
+        } catch (CloneNotSupportedException ignored) {
+        }
 
         int gap = 0;
         for (Card card : choice) {
-            card.cardActor = new CardActor(card,100,100);
+            card.cardActor = new CardActor(card, 100, 100);
             addActor(card.cardActor);
             card.cardActor.setSize(CardActor.cardWidth * 2, CardActor.cardHeight * 2);
             card.cardActor.setDraggable(false);
@@ -449,7 +481,7 @@ class RewardScene extends Stage {
                             dispose();
                             GameProgress.game.setScreen(GameProgress.generateFight());
                         }
-                    },0.5f);
+                    }, 0.5f);
                 })
         ));
     }
