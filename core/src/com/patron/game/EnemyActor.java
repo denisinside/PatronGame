@@ -454,13 +454,16 @@ class EffectPanel extends Actor{
             tooltip = new Tooltip(effect.name,effect.description,this);
 
 
-
             if (effect instanceof CureEffect)
                 icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Health_Buff.png")));
             else if(effect instanceof RadiationEffect)
                 icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Poison_debuff.png")));
             else if(effect instanceof WeaknessEffect)
                 icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Weakness_debuff.png")));
+            else if(effect instanceof VulnerabilityEffect)
+                icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Vulnerability.png")));
+            else if(effect instanceof FragilityEffect)
+                icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Fragility.png")));
             else
                 icon = new Sprite(new Texture(Gdx.files.internal("debuff_effect.png")));
 
