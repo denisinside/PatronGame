@@ -54,6 +54,7 @@ public class PlayerActor extends Actor {
         EffectPanel.EffectIcon effectIcon = new EffectPanel.EffectIcon(effect);
         effectIcon.setPosition(getX(), getY()+Math.abs(getHeight()-getWidth()));
         effectIcon.tooltip = null;
+        effectIcon.showMoves = false;
         effectIcon.addAction(Actions.alpha(0));
         otherValues.add(effectIcon);
 

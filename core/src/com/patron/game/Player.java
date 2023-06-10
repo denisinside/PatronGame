@@ -1,6 +1,7 @@
 package com.patron.game;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,9 +11,11 @@ public class Player {
     private int maxEnergy = 3;
    private int health;
    private int energy;
+   int money = 0;
    private int cardPerRound = 5;
    private int armor = 0;
     protected ArrayList<Effect> effects = new ArrayList<>();
+    protected Array<Artefact> artefacts = new Array<>();
 
 
     private double damageMultiplier = 1;
@@ -29,6 +32,22 @@ public class Player {
        energy = maxEnergy;
         actor = new PlayerActor();
         actor.healthBar.setCurrentValue(health);
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
    }
     public void addEffect(Effect effect){
         for (Effect e : effects) {

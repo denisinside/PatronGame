@@ -47,8 +47,6 @@ public class Fight implements Screen {
         player.setEnergy(player.getMaxEnergy());
         this.game = game;
         Fight.enemies = enemies;
-        player.actor.effectPanel.effectIcons.clear();
-        player.effects.clear();
 
         win = loose = false;
         rewardScene = null;
@@ -117,7 +115,6 @@ public class Fight implements Screen {
             staticTimer.scheduleTask(new Timer.Task() {
                 @Override
                 public void run() {
-                    System.out.println(finalI == discard.size()-1);
                     discard.get(finalI).cardActor.addAction(Actions.sequence(
                             Actions.parallel(
                                     Actions.moveTo(Gdx.graphics.getWidth()/2-CardActor.cardWidth, 50, 0.75f, Interpolation.sine),
@@ -128,7 +125,6 @@ public class Fight implements Screen {
                                     Actions.sizeTo(CardActor.cardWidth/3, CardActor.cardHeight/3, 0.75f, Interpolation.sine)
                             ),
                             finalI == discard.size()-1 ?  Actions.run(()->{
-                                System.out.println(discard.size() + "  " + finalI);
                                 draw.addAll(discard);
                                 discard.clear();
                                 Collections.shuffle(draw);
@@ -167,6 +163,9 @@ public class Fight implements Screen {
             rewardScene = new RewardScene();
             Gdx.input.setInputProcessor(rewardScene);
             rewardScene.addAction(Actions.fadeIn(0.2f));
+            for(Effect effect : player.effects) effect.setBase();
+            player.actor.effectPanel.effectIcons.clear();
+            player.effects.clear();
             win = true;
         } else if (player.getHealth() <= 0) {
             loose = true;
@@ -489,7 +488,6 @@ class RewardScene extends Stage {
     @Override
     public void draw() {
         super.draw();
-
     }
 
     @Override

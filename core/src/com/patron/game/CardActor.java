@@ -29,7 +29,6 @@ public class CardActor extends Actor {
     boolean selected = false;
     private EnergyActor energyActor;
     private Sprite cardTemplateTexture, cardImageTexture;
-    private Rectangle textBounds;
     private Label name,description;
 
 
@@ -240,6 +239,12 @@ public class CardActor extends Actor {
     @Override
     public void act(float delta) {
         super.act(delta);
+        energyActor.setColor(getColor());
+        cardImageTexture.setColor(getColor());
+        cardTemplateTexture.setColor(getColor());
+        name.setColor(getColor());
+        description.setColor(getColor());
+
         offsetX = (cardWidth / 8) * getWidth() / cardWidth;
         offsetY = (float) ((cardHeight / 2.6) * getHeight() / cardHeight);
         cardImageTexture.setBounds(getX() + offsetX, getY() + offsetY, 150 * getWidth() / 200, 150 * getHeight() / 300);
@@ -287,6 +292,7 @@ class EnergyActor extends Actor {
     Sprite energyIcon;
     Sprite numberIcon;
     BitmapFont font;
+    Label cost;
 
     public EnergyActor(int energyAmount, int width, int height) {
         this.energyAmount = energyAmount;
@@ -299,6 +305,9 @@ class EnergyActor extends Actor {
         fontParameter.borderWidth = 2;
         font = new FreeTypeFontGenerator(Gdx.files.internal("Albionic.ttf")).generateFont(fontParameter);
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        cost = new Label(energyAmount+"",new Label.LabelStyle(font,Color.WHITE));
+        cost.setAlignment(Align.center);
     }
 
     public void setEnergyAmount(int energyAmount) {
@@ -311,13 +320,17 @@ class EnergyActor extends Actor {
         energyIcon.draw(batch);
 
         font.getData().setScale(getWidth() / 80);
-        font.draw(batch, energyAmount + "", getX() + getWidth() / 5, getY() + getHeight() - getHeight() / 7, getWidth(), Align.center, true);
+        cost.draw(batch,parentAlpha);
     }
 
     @Override
     public void act(float delta) {
         super.act(delta);
+        energyIcon.setColor(getColor());
+        cost.setColor(getColor());
         energyIcon.setBounds(getX(), getY(), getWidth(), getHeight());
+        cost.setBounds(getX() + getWidth() / 5, getY() + getHeight() - getHeight() / 7, getWidth(),0);
+        cost.act(delta);
         setBounds(getX(), getY(), getWidth(), getHeight());
 
     }

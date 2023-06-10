@@ -12,7 +12,7 @@ public class Fonts {
     static FreeTypeFontGenerator maurysselBoldFontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Mauryssel_Bold.ttf"));
     static FreeTypeFontGenerator lisichkaComicFontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Lisichka_comic.ttf"));
 
-    public static final String characters = "0123456789()+-=/*!?`%;',.АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯЇїІіЄєабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    public static final String characters = "0123456789()[]<>+-=/*!?`%;\"',.QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnmАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯЇїІіЄєабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
 
     static FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
@@ -24,6 +24,33 @@ public class Fonts {
     public static  final BitmapFont ATTACK_FONT = setAttackFont();
     public static  final BitmapFont ICON_NUMBERS = setIconFont();
     public static  final BitmapFont VALUE_NUMBERS = setValueFont();
+    public static final BitmapFont MAURYSSEL_BASIC = setMaurysselBasic();
+    public static final BitmapFont MAURYSSEL_LARGE = setMaurysselLarge();
+
+    private static BitmapFont setMaurysselBasic() {
+        BitmapFont basic;
+
+        fontParameter.characters = characters;
+
+        fontParameter.size = 14;
+        fontParameter.borderWidth = 2;
+        basic = maurysselBoldFontGenerator.generateFont(fontParameter);
+
+        return basic;
+
+    }
+    private static BitmapFont setMaurysselLarge() {
+        BitmapFont basic;
+
+        fontParameter.characters = characters;
+
+        fontParameter.size = 24;
+        fontParameter.borderWidth = 4;
+        basic = maurysselBoldFontGenerator.generateFont(fontParameter);
+
+        return basic;
+
+    }
 
     private static BitmapFont setValueFont() {
         BitmapFont basic;

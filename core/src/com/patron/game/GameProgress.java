@@ -19,6 +19,7 @@ public class GameProgress extends Game {
     int cardRewardAmount = 3;
     static Random r = new Random();
     public static Game game;
+    public static TopPanel topPanel;
     public GameProgress(){
         game = this;
     }
@@ -101,12 +102,14 @@ public class GameProgress extends Game {
         Effect.player = player;
         Enemy.player = player;
         Fight.player = player;
+        topPanel = new TopPanel();
         MoveDisplay.init();
         loadAllCards();
         makeStartDeck();
 
+        setScreen(new ChoiceYourWayEvent());
        //do {
-            setScreen(generateFight());
+        //    setScreen(generateFight());
        // } while (!died);
 
     }

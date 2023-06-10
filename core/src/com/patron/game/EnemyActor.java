@@ -106,6 +106,7 @@ public class EnemyActor extends Actor {
         EffectPanel.EffectIcon effectIcon = new EffectPanel.EffectIcon(effect);
         effectIcon.setPosition(getX(), getY()+Math.abs(getHeight()-getWidth()));
         effectIcon.tooltip = null;
+        effectIcon.showMoves = false;
         effectIcon.addAction(Actions.alpha(0));
         otherValues.add(effectIcon);
 
@@ -449,6 +450,7 @@ class EffectPanel extends Actor{
         Sprite icon;
         Tooltip tooltip;
         Effect effect;
+        boolean showMoves = true;
         public EffectIcon(Effect effect){
             this.effect = effect;
             tooltip = new Tooltip(effect.name,effect.description,this);
@@ -475,7 +477,7 @@ class EffectPanel extends Actor{
         public void draw(Batch batch, float parentAlpha) {
             super.draw(batch, parentAlpha);
             icon.draw(batch);
-            Fonts.ICON_NUMBERS.draw(batch,effect.moves+"",getX()-getWidth()/4,getY()+getHeight()/4,getWidth(),Align.left,true);
+            if (showMoves)Fonts.ICON_NUMBERS.draw(batch,effect.moves+"",getX()-getWidth()/4,getY()+getHeight()/4,getWidth(),Align.left,true);
             if (tooltip!=null) tooltip.draw(batch,parentAlpha);
 
         }

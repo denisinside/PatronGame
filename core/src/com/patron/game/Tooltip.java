@@ -19,6 +19,10 @@ public class Tooltip extends Actor {
     private final float MAX_WIDTH = 200;
     private final float PADDING = 30;
     Actor actor;
+    public Tooltip(Actor actor){
+        this.actor = actor;
+
+    }
     public Tooltip(String name, String description,Actor actor){
         nameLabel = new Label(name,new Label.LabelStyle(Fonts.ALBIONIC_BASIC_NAME, Color.GOLD));
         descriptionLabel = new Label(description,new Label.LabelStyle(Fonts.ALBIONIC_BASIC_NAME, Color.WHITE));
@@ -46,7 +50,7 @@ public class Tooltip extends Actor {
                 Tooltip.this.addAction(Actions.sequence(
                         Actions.fadeOut(0.5f),
                         Actions.hide()
-                        ));
+                ));
             }
         });
     }
@@ -86,5 +90,49 @@ public class Tooltip extends Actor {
         background.draw(batch);
         nameLabel.draw(batch,parentAlpha);
         descriptionLabel.draw(batch,parentAlpha);
+    }
+}
+class CardTooltip extends Tooltip{
+    CardActor cardActor;
+    public CardTooltip(Card card, Actor tooltipedActor) {
+        super(tooltipedActor);
+        cardActor = card.cardActor;
+
+        cardActor.addAction(Actions.alpha(0));
+
+        actor.addCaptureListener(new InputListener(){
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                super.enter(event, x, y, pointer, fromActor);
+                cardActor.addAction(Actions.sequence(
+                        Actions.show(),
+                        Actions.fadeIn(0.5f)
+                        ));
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                super.exit(event, x, y, pointer, toActor);
+                cardActor.addAction(Actions.sequence(
+                        Actions.fadeOut(0.5f),
+                        Actions.hide()
+                ));
+            }
+        });
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        cardActor.draw(batch,parentAlpha);
+    }
+
+    @Override
+    public void act(float delta) {
+        if (actor.getX() - getWidth() > 0)
+            setPosition(actor.getX() - CardActor.cardWidth, actor.getY());
+        else
+            setPosition(actor.getX() + actor.getWidth(), actor.getY());
+        cardActor.act(delta);
+        cardActor.setBounds(getX(),getY(),CardActor.cardWidth,CardActor.cardHeight);
     }
 }
