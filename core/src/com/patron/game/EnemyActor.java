@@ -69,7 +69,10 @@ public class EnemyActor extends Actor {
         name.addAction(Actions.alpha(0));
 
         // потім шукати буде по клас нейму, але зараз буде 1 картинка
-        enemySprite = new EnemySprite(new Sprite(new Texture(Gdx.files.internal("bandit.png"))));
+        if (enemy instanceof Bandit)
+        enemySprite = new EnemySprite(new Sprite(new Texture(Gdx.files.internal("assets/enemies/Bandit.png"))));
+        else if(enemy instanceof RadioactiveRat)
+            enemySprite = new EnemySprite(new Sprite(new Texture(Gdx.files.internal("assets/enemies/RadioRat.png"))));
 
         addListener(new InputListener(){
             @Override
