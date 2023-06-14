@@ -85,17 +85,14 @@ public class CardActor extends Actor {
             label.getStyle().font.getData().setScale(fontSize);
             layout.setText(label.getStyle().font, text);
 
-            if (layout.width <= getWidth()*0.85) {
+            if (layout.width <= getWidth()*0.8 && layout.height <= getHeight()*0.08) {
                 return fontSize;
             }
             fontSize -= 0.1;
         }
-        return 0.1f;
+        return 0.01f;
     }
     public static void setFonts() {
-
-
-        Fonts.albionicFontGenerator.dispose();
     }
 
     public void afterUsing() {
@@ -234,6 +231,7 @@ public class CardActor extends Actor {
             }
         }
         if (!found) addAction(Actions.moveTo(xPos, yPos, 0.5f));
+        selected = false;
     }
 
     @Override
@@ -253,8 +251,8 @@ public class CardActor extends Actor {
         energyActor.act(delta);
 
         setBounds(getX(), getY(), getWidth(), getHeight());
-        name.setBounds((float) (getX() + offsetX*0.3), (float) (getY() + offsetY * 0.9), (float) ((cardWidth - offsetX*0.2 )* getWidth() / cardWidth), 0);
-        description.setBounds((float) (getX() + offsetX * 0.3), (float) (getY() + offsetY*0.1), (float) ((cardWidth - offsetX*0.2 )* getWidth() / cardWidth), (float) (getHeight()*0.3));
+        name.setBounds((float) (getX() + offsetX*0.3), (float) (getY() + offsetY * 0.9 - getHeight()*0.05f), (float) ((cardWidth - offsetX*0.2 )* getWidth() / cardWidth), getHeight()*0.1f);
+        description.setBounds((float) (getX() + offsetX * 0.3), (float) (getY() + offsetY*0.1), (float) ((cardWidth - offsetX*0.2 )* getWidth() / cardWidth), getHeight()*0.3f);
 
     }
 
@@ -329,8 +327,9 @@ class EnergyActor extends Actor {
         energyIcon.setColor(getColor());
         cost.setColor(getColor());
         energyIcon.setBounds(getX(), getY(), getWidth(), getHeight());
-        cost.setBounds(getX() + getWidth() / 5, getY() + getHeight() - getHeight() / 7, getWidth(),0);
+        cost.setBounds(getX() + getWidth() / 5, getY() + getHeight()*0.75f, getWidth(),0);
         cost.act(delta);
+        cost.setText(energyAmount);
         setBounds(getX(), getY(), getWidth(), getHeight());
 
     }

@@ -87,7 +87,8 @@ class Defend extends Action{
         this.name = "Захист";
     }
     public Move getMove(){
-        return  Move.DEFEND;
+        if (effects == null) return  Move.DEFEND;
+        else return Move.BUFFED_DEFENSE;
     }
     public int getSummaryValue() {
         return count *block;

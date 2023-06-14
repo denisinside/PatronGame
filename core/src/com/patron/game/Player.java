@@ -32,24 +32,41 @@ public class Player {
        energy = maxEnergy;
         actor = new PlayerActor();
         actor.healthBar.setCurrentValue(health);
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
-        artefacts.add(new Artefact("Здоров'я","Дає мільйон приколів для сміху","icons\\Interface\\TopPanel\\Coin.png"));
+   }
+   private void featureArtefact(String name){
+        if (name.equals("Рюкзак")) cardPerRound += 1;
+       if (name.equals("Червоне яблуко")){
+           maxHealth += 10;
+           heal(10);
+       }
+       if (name.equals("Зелене яблуко")){
+           maxHealth += 5;
+           heal(maxHealth-health);
+       }
+       if (name.equals("Золотий злиток")) addGold(200);
+       if (name.equals("Срібний злиток")) addGold(100);
+       if (name.equals("Бронзовий злиток")) addGold(50);
+
+       if (name.equals("Око Буданова")) MoveDisplay.setShowMoreInfo(true);
+       }
+   public void test(){
+        addArtefact(ArtefactFactory.getArtefact("Око Буданова"));
+     }
+   public void addArtefact(Artefact artefact){
+        artefacts.add(artefact);
+        GameProgress.topPanel.addActor(artefact);
+       featureArtefact(artefact.name);
+   }
+   public boolean ifHasArtefact(String name){
+    for (Artefact artefact : artefacts)
+        if (artefact.name.equals(name)) return  true;
+    return false;
    }
     public void addEffect(Effect effect){
+        if (effect instanceof RadiationEffect)
+            if(ifHasArtefact("Слиз"))
+                effect.moves=-1;
+
         for (Effect e : effects) {
             if (e.getClass().equals(effect.getClass())) {
                 e.moves += effect.moves;
@@ -74,7 +91,7 @@ public class Player {
             if (!effect.isPermanent && effect.isInstant) effect.moves--;
             if (effect.moves > 0)effect.effectResult();
             if (!effect.isPermanent && !effect.isInstant) effect.moves--;
-            if (!effect.isPermanent && effect.moves <= 0){
+            if ((!effect.isPermanent && effect.moves <= 0) || (effect.isPermanent && effect.moves == 0)){
                 effect.setBase();
                 iterator.remove();
                 actor.effectPanel.removeEffect(effect);
@@ -203,4 +220,7 @@ public class Player {
         return strengthBuff;
     }
 
+    public void addGold(int i) {
+        money += i;
+    }
 }

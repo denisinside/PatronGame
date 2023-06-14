@@ -139,7 +139,7 @@ class AttackCard extends Card {
                 if (enemy.ifHas(new VulnerabilityEffect(1))) player.setEnergy(player.getEnergy() + 1);
                 break;
             case "Відчайдушний удар":
-                Fight.draw.add(rnd.nextInt(Fight.draw.size()), CardFactory.getStatus("Рана"));
+                Fight.draw.add(Fight.draw.size() > 0 ? rnd.nextInt(Fight.draw.size()) : 0, CardFactory.getStatus("Рана"));
                 break;
             case "Маневр":
                 skillStrength = 5;
