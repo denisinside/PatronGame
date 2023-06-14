@@ -42,7 +42,7 @@ public class Effect implements Cloneable{
 
     @Override
     public String toString() {
-        return name + "   " + moves;
+        return name;
     }
 }
 
@@ -123,8 +123,8 @@ class FragilityEffect extends Effect{
     }
     @Override
     public void setBase() {
-        if (enemy != null) enemy.setDefendBuff(1);
-        else player.setDefendBuff(1);
+        if (enemy != null) enemy.setDefendMultiplier(1);
+        else player.setDefendMultiplier(1);
     }
 }
 class VulnerabilityEffect extends Effect{
@@ -201,6 +201,71 @@ class BleedingEffect extends Effect{
                 player.actor.addValue(moves, Color.SCARLET, EnemyActor.valueType.EFFECT_DAMAGE);
             }
         }
+    }
+}
+class StrengthEffect extends Effect{
+    public StrengthEffect(int moves){
+        super("Сила",true,moves);
+        description = "Збільшує силу атаки";
+        effectType = EffectType.BUFF;
+        color = Color.FIREBRICK;
+        isPermanent = true;
+        isInstant = true;
+    }
+    public StrengthEffect(Enemy enemy, int moves){
+        super("Сила",true,moves);
+        description = "Збільшує силу атаки";
+        effectType = EffectType.BUFF;
+        color = Color.FIREBRICK;
+        this.enemy = enemy;
+        isPermanent = true;
+        isInstant = true;
+    }
+    @Override
+    public void effectResult(){
+        if (moves > 0) {
+            if (enemy != null) enemy.setStrengthBuff(moves);
+            else player.setStrengthBuff(moves);
+        }
+    }
+    @Override
+    public void setBase() {
+        if (enemy != null) enemy.setStrengthBuff(0);
+        else player.setStrengthBuff(0);
+
+    }
+}
+
+class AgilityEffect extends Effect{
+    public AgilityEffect(int moves){
+        super("Сила",true,moves);
+        description = "Збільшує ефект захисту";
+        effectType = EffectType.BUFF;
+        color = Color.FIREBRICK;
+        isPermanent = true;
+        isInstant = true;
+    }
+    public AgilityEffect(Enemy enemy, int moves){
+        super("Сила",true,moves);
+        description = "Збільшує ефект захисту";
+        effectType = EffectType.BUFF;
+        color = Color.FIREBRICK;
+        this.enemy = enemy;
+        isPermanent = true;
+        isInstant = true;
+    }
+    @Override
+    public void effectResult(){
+        if (moves > 0) {
+            if (enemy != null) enemy.setDefendBuff(moves);
+            else player.setDefendBuff(moves);
+        }
+    }
+    @Override
+    public void setBase() {
+        if (enemy != null) enemy.setDefendBuff(0);
+        else player.setDefendBuff(0);
+
     }
 }
 enum EffectType{

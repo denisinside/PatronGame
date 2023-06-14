@@ -17,6 +17,7 @@ public class Enemy {
     protected int moveIndex = 0;
     protected ArrayList<Effect> effects = new ArrayList<>();
     protected static Random random = new Random();
+    public int goldReward;
 
     protected double damageMultiplier = 1;
     protected double defendMultiplier = 1;
@@ -124,6 +125,7 @@ public class Enemy {
             case BUFFED_ATTACK:
             case ATTACK:
                 attack(enemyMoves.get(moveIndex)); break;
+            case BUFFED_DEFENSE:
             case DEFEND: defend(enemyMoves.get(moveIndex)); break;
             case IMPACT: castImpact(enemyMoves.get(moveIndex)); break;
             case DEBUFF: castDebuff(enemyMoves.get(moveIndex)); break;
@@ -149,7 +151,7 @@ public class Enemy {
         for (Effect e : impact.effects) player.addEffect(e);
     }
     public void attack(Action attack){
-        int damage = (int) Math.round((attack.getSummaryValue()+strengthBuff)*attackMultiplier);
+        int damage = (int) Math.round((attack.getSummaryValue()+strengthBuff*attack.count)*attackMultiplier);
         player.getDamage(damage);
         actor.enemySprite.addAction(Actions.sequence(
                 Actions.moveBy(-100,0,0.8f),
@@ -160,7 +162,7 @@ public class Enemy {
     }
     public void defend(Action block){
         if (!block.toAll) {
-            int armor = (int) Math.round((block.getSummaryValue() + defendBuff) * defendMultiplier);
+            int armor = (int) Math.round((block.getSummaryValue() + defendBuff*block.count) * defendMultiplier);
             addArmor(armor);
             if (block.isWithEffect)
                 for (Effect e : block.effects) addEffect(e);

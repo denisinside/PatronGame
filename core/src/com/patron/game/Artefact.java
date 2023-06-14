@@ -16,7 +16,7 @@ public class Artefact extends Actor {
         this.name = name;
 
         icon = new Sprite(new Texture(Gdx.files.internal(path)));
-        setSize(100,100);
+        setSize(64,64);
 
         tooltip = new Tooltip(name,description,this);
     }
