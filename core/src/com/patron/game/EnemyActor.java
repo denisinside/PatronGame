@@ -56,6 +56,8 @@ public class EnemyActor extends Actor {
         enemySprite = new EnemySprite(new Sprite(new Texture(Gdx.files.internal("assets/enemies/Bandit.png"))));
         else if(enemy instanceof RadioactiveRat)
             enemySprite = new EnemySprite(new Sprite(new Texture(Gdx.files.internal("assets/enemies/RadioRat.png"))));
+        else if(enemy instanceof FireBagSoldier)
+            enemySprite = new EnemySprite(new Sprite(new Texture(Gdx.files.internal("assets/enemies/Soldier.png"))));
         else enemySprite = new EnemySprite(new Sprite(new Texture(Gdx.files.internal("assets/enemies/Bandit.png"))));
 
         addListener(new InputListener() {
