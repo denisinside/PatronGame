@@ -27,7 +27,7 @@ public class CardActor extends Actor {
     public int number;
     public float xPos, yPos, offsetX = 4, offsetY = (float) (4);
     boolean selected = false;
-    private EnergyActor energyActor;
+    public EnergyActor energyActor;
     private Sprite cardTemplateTexture, cardImageTexture;
     private Label name,description;
 
@@ -337,8 +337,10 @@ class EnergyActor extends Actor {
 
 class NextMoveButton extends Actor {
     Sprite button;
+    String text;
 
-    public NextMoveButton() {
+    public NextMoveButton(String text) {
+        this.text = text;
         setBounds(Gdx.graphics.getWidth() / 2 + Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 5, 300, 100);
         button = new Sprite(new Texture(Gdx.files.internal("nextmovebutton.png")));
     }
@@ -347,7 +349,7 @@ class NextMoveButton extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
         button.draw(batch);
-        Fonts.ALBIONIC_LARGE_NAME.draw(batch, "Наступний хід", Gdx.graphics.getWidth() / 2 + Gdx.graphics.getWidth() / 3, (float) (Gdx.graphics.getHeight() / 5 + getHeight() / 1.5), getWidth(), Align.center, true);
+        Fonts.ALBIONIC_LARGE_NAME.draw(batch, text, Gdx.graphics.getWidth() / 2 + Gdx.graphics.getWidth() / 3, (float) (Gdx.graphics.getHeight() / 5 + getHeight() / 1.5), getWidth(), Align.center, true);
     }
 
     @Override

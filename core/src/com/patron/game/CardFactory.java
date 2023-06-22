@@ -75,12 +75,12 @@ public class CardFactory {
                 return new StatusCard("Рана", "До кінця бою пройде", false);
             case "Запаморочення":
                 return new StatusCard("Запаморочення", "Щось не так...", false);
-            case "Опік":
-                return new StatusCard("Опік", "Боляче! Наприкінці ходу отримаєш playerDamage шкоди", false);
-            case "Слиз":
-                return new StatusCard("Слиз", "Гидота...", true);
-            case "Опромінювання":
-                return new StatusCard("Опромінювання", "Наприкінці ходу отримаєш 2 радіації", true);
+           // case "Опік":
+           //     return new StatusCard("Опік", "Боляче! Наприкінці ходу отримаєш playerDamage шкоди", false);
+          //  case "Слиз":
+            //    return new StatusCard("Слиз", "Гидота...", true);
+           //case "Опромінювання":
+            //    return new StatusCard("Опромінювання", "Наприкінці ходу отримаєш 2 радіації", true);
 
             default:
                 throw new IllegalArgumentException("Недопустима назва карти: " + cardName);
@@ -101,7 +101,7 @@ class ArtefactFactory {
                 return new Artefact("Пилка для кігтів", "У перший хід отримуєте 1 силу", "Artefacts\\Knife.png");
 
             case "Стріла Артеміди":
-                return new Artefact("Стріла Артеміди", "Всі вороги у перший хід отримують 1 вразливість", "Artefacts\\Skull.png");
+                return new Artefact("Стріла Артеміди", "Всі вороги у перший хід отримують 1 вразливість", "Artefacts\\Arrow.png");
 
             case "Львівське 1715":
                 return new Artefact("Львівське 1715", "Додаткова енергія у перший хід", "Artefacts\\Beer.png");
@@ -137,7 +137,7 @@ class ArtefactFactory {
                 return new Artefact("Писанка", "Через кожні 3 ходи дає енергію", "Artefacts\\MonsterEgg.png");
 
             case "Ленд-ліз":
-                return new Artefact("Ленд-ліз", "Отримуєте 3 картки на вибір", "Artefacts\\Crate.png");
+                return new Artefact("Ленд-ліз", "Отримуєте випадкових 3 картки", "Artefacts\\Crate.png");
 
             case "Артемівське":
                 return new Artefact("Артемівське", "Зцілення на 5 здоров'я вкінці бою", "Artefacts\\Wine.png");
@@ -150,6 +150,9 @@ class ArtefactFactory {
 
             case "Залізний щит":
                 return new Artefact("Залізний щит", "У перший хід отримуєте 12 броні", "Artefacts\\IronShield.png");
+
+            case "Фляга з кров'ю":
+                return new Artefact("Фляга з кров'ю", "Всі атаки замінюються укусами. Укуси зцілюють на 2 ОЗ", "Artefacts\\Blood.png");
 
             default:
                 throw new IllegalArgumentException("Недопустима назва артефакту: " + name);

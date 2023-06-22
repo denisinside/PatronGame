@@ -1,5 +1,6 @@
 package com.patron.game;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 
 import java.util.ArrayList;
@@ -133,7 +134,7 @@ class AttackCard extends Card {
                 pickUpCard(1);
                 break;
             case "Безглуздий удар":
-                Fight.draw.add(rnd.nextInt(Fight.draw.size()), CardFactory.getStatus("Запаморочення"));
+                Fight.draw.add(Fight.draw.size()-1 >= 1 ? 0 : MathUtils.random(Fight.draw.size()-1), CardFactory.getStatus("Запаморочення"));
                 break;
             case "У слабке місце":
                 if (enemy.ifHas(new VulnerabilityEffect(1))) player.setEnergy(player.getEnergy() + 1);
@@ -147,6 +148,8 @@ class AttackCard extends Card {
                 break;
             case "Збити з ніг":
                 Fight.draw.add(rnd.nextInt(Fight.draw.size()), Fight.getCardFromDiscard());
+                break;
+            case "Укус": if (player.ifHasArtefact("Фляга з кров'ю")) player.heal(2);
             default:
         }
     }
@@ -188,9 +191,9 @@ class AttackCard extends Card {
         }
         uniqueUse(enemy, enemies1);
 
-        player.actor.addAction(Actions.sequence(
-                Actions.moveBy(200, 0, (float) (1)),
-                Actions.moveBy(-200, 0, (float) (1))
+        player.actor.playerSprite.addAction(Actions.sequence(
+                Actions.moveBy(150, 0, 1),
+                Actions.moveBy(-150, 0, 1)
         ));
     }
 

@@ -11,12 +11,13 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 
 public class PlayerActor extends Actor {
     public Player player;
-    private Sprite playerSprite;
+    public Image playerSprite;
     public HealthBar healthBar;
     public EffectPanel effectPanel;
     float width, height, x, y;
@@ -36,7 +37,7 @@ public class PlayerActor extends Actor {
 
         effectPanel = new EffectPanel(getWidth());
 
-        playerSprite = new Sprite(new Texture(Gdx.files.internal("Patron_Idle.png")));
+        playerSprite = new Image(new Sprite(new Texture(Gdx.files.internal("Patron_Idle.png"))));
     }
     public void addEffect(Effect effect){
         FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -147,9 +148,16 @@ public class PlayerActor extends Actor {
         }
     }
     @Override
+    public void setPosition(float x, float y) {
+        super.setPosition(x, y);
+        playerSprite.setPosition(getX(), getY() + 50);
+    }
+
+    @Override
     public void act(float delta) {
         super.act(delta);
-        playerSprite.setBounds(getX(),getY(),getWidth(),getHeight()-50);
+        playerSprite.setBounds(playerSprite.getX(),playerSprite.getY(),getWidth(),getHeight()-50);
+        playerSprite.act(delta);
         healthBar.setBounds(getX(),getY(),getWidth(),30);
         healthBar.act(delta);
 
@@ -172,7 +180,7 @@ public class PlayerActor extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        playerSprite.draw(batch);
+        playerSprite.draw(batch,parentAlpha);
         healthBar.draw(batch,parentAlpha);
         effectPanel.draw(batch,parentAlpha);
         for (Label label : valuesDisplay){

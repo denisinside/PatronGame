@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
@@ -22,7 +23,7 @@ import java.util.Arrays;
 
 public class EnemyActor extends Actor {
     public Enemy enemy;
-    public EnemySprite enemySprite;
+    public Image enemySprite;
     public HealthBar healthBar;
     public MoveDisplay moveDisplay;
     public EffectPanel effectPanel;
@@ -31,7 +32,7 @@ public class EnemyActor extends Actor {
     Array<Label> valuesDisplay;
     Array<Actor> otherValues;
 
-    public EnemyActor(float width, float height, Enemy enemy) {
+    public EnemyActor(String path,float width, float height, Enemy enemy) {
         this.width = width;
         this.height = height;
         this.enemy = enemy;
@@ -52,13 +53,8 @@ public class EnemyActor extends Actor {
         name.addAction(Actions.alpha(0));
 
         // потім шукати буде по клас нейму, але зараз буде 1 картинка
-        if (enemy instanceof Bandit)
-        enemySprite = new EnemySprite(new Sprite(new Texture(Gdx.files.internal("assets/enemies/Bandit.png"))));
-        else if(enemy instanceof RadioactiveRat)
-            enemySprite = new EnemySprite(new Sprite(new Texture(Gdx.files.internal("assets/enemies/RadioRat.png"))));
-        else if(enemy instanceof FireBagSoldier)
-            enemySprite = new EnemySprite(new Sprite(new Texture(Gdx.files.internal("assets/enemies/Soldier.png"))));
-        else enemySprite = new EnemySprite(new Sprite(new Texture(Gdx.files.internal("assets/enemies/Bandit.png"))));
+        enemySprite = new Image(new Sprite(new Texture(Gdx.files.internal("enemies\\"+path+".png"))));
+
 
         addListener(new InputListener() {
             @Override
@@ -245,28 +241,6 @@ public class EnemyActor extends Actor {
         HEAL,
         EFFECT_DAMAGE
     }
-
-    static class EnemySprite extends Actor {
-        Sprite enemySprite;
-
-        public EnemySprite(Sprite sprite) {
-            enemySprite = sprite;
-        }
-
-        @Override
-        public void draw(Batch batch, float parentAlpha) {
-            super.draw(batch, parentAlpha);
-            enemySprite.setColor(getColor());
-            enemySprite.draw(batch);
-        }
-
-        @Override
-        public void act(float delta) {
-            super.act(delta);
-            enemySprite.setBounds(getX(), getY(), getWidth(), getHeight());
-
-        }
-    }
 }
 
 class HealthBar extends Actor {
@@ -450,14 +424,14 @@ class MoveDisplay extends Actor {
         if (move.getTexture() != null) move.draw(batch);
         if (action != null && (action.getMove() == Move.ATTACK || action.getMove() == Move.BUFFED_ATTACK || action.getMove() == Move.EFFECTED_ATTACK))
             if ((action).count == 1)
-                Fonts.ATTACK_FONT.draw(batch, (int)((((Attack) action).damage +enemy.strengthBuff)*enemy.attackMultiplier) + "", getX() - getWidth() / 4, getY() + getHeight() / 4, getWidth(), Align.left, true);
+                Fonts.ATTACK_FONT.draw(batch, (int)((((Attack) action).damage +enemy.strengthBuff)*enemy.attackMultiplier) + "", getX() - getWidth() / 4, getY() + getHeight() / 4, getWidth()*1.5f, Align.left, true);
             else
-                Fonts.ATTACK_FONT.draw(batch, (int)((((Attack) action).damage +enemy.strengthBuff)*enemy.attackMultiplier) + "x" + action.count, getX() - getWidth() / 4, getY() + getHeight() / 4, getWidth(), Align.left, true);
+                Fonts.ATTACK_FONT.draw(batch, (int)((((Attack) action).damage +enemy.strengthBuff)*enemy.attackMultiplier) + "x" + action.count, getX() - getWidth() / 4, getY() + getHeight() / 4, getWidth()*1.5f, Align.left, true);
         if (showMoreInfo && action != null && (action.getMove() == Move.DEFEND || action.getMove() == Move.BUFFED_DEFENSE))
             if ((action).count == 1)
-                Fonts.ATTACK_FONT.draw(batch, (int)((((Defend) action).block + enemy.defendBuff)*enemy.defendMultiplier) + "", getX() - getWidth() / 4, getY() + getHeight() / 4, getWidth(), Align.left, true);
+                Fonts.ATTACK_FONT.draw(batch, (int)((((Defend) action).block + enemy.defendBuff)*enemy.defendMultiplier) + "", getX() - getWidth() / 4, getY() + getHeight() / 4, getWidth()*1.5f, Align.left, true);
             else
-                Fonts.ATTACK_FONT.draw(batch, (int)((((Defend) action).block + enemy.defendBuff)*enemy.defendMultiplier)  + "x" + action.count, getX() - getWidth() / 4, getY() + getHeight() / 4, getWidth(), Align.left, true);
+                Fonts.ATTACK_FONT.draw(batch, (int)((((Defend) action).block + enemy.defendBuff)*enemy.defendMultiplier)  + "x" + action.count, getX() - getWidth() / 4, getY() + getHeight() / 4, getWidth()*1.5f, Align.left, true);
         tooltip.draw(batch, parentAlpha);
     }
 
@@ -535,8 +509,15 @@ class EffectPanel extends Actor {
                 icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Fragility.png")));
             else if (effect instanceof BleedingEffect)
                 icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Bleeding.png")));
+            else if (effect instanceof StrengthEffect)
+                icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Strength.png")));
+            else if (effect instanceof AgilityEffect)
+                icon = new Sprite(new Texture(Gdx.files.internal("icons\\Interface\\Effects\\Agility.png")));
             else
-                icon = new Sprite(new Texture(Gdx.files.internal("debuff_effect.png")));
+                if (effect.effectType == EffectType.BUFF)
+                    icon = new Sprite(new Texture(Gdx.files.internal("buff_effect.png")));
+                else
+                    icon = new Sprite(new Texture(Gdx.files.internal("debuff_effect.png")));
 
             setSize(65, 65);
         }

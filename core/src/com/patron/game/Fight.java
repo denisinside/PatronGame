@@ -28,6 +28,7 @@ public class Fight implements Screen {
     public static EnergyActor playerEnergy;
     public static Group cardActors, enemiesActors, tooltipedActors;
     static ArrayList<Enemy> enemies = new ArrayList<>();
+    public ArrayList<Enemy> currentEnemies = new ArrayList<>();
     static Player player;
     static ArrayList<Card> inHand;
     static ArrayList<Card> draw;
@@ -37,8 +38,10 @@ public class Fight implements Screen {
     static boolean loose = false;
     static RewardScene rewardScene;
     static Timer staticTimer = new Timer();
-    static Artefact reward;
+    public static Artefact reward;
+    public Artefact currentReward;
     static int totalGoldReward;
+    public boolean isEventFight = false;
     Game game;
     int move = 1;
     Timer timer = new Timer();
@@ -49,9 +52,10 @@ public class Fight implements Screen {
     private ShapeRenderer shapeRenderer;
 
     public Fight(ArrayList<Enemy> enemies, ArrayList<Card> playerDeck, Game game) {
-        player.setEnergy(player.getMaxEnergy());
         this.game = game;
-        Fight.enemies = enemies;
+        currentEnemies = enemies;
+        reward = null;
+        totalGoldReward = 0;
 
         win = loose = false;
         rewardScene = null;
@@ -62,22 +66,6 @@ public class Fight implements Screen {
         discard = new ArrayList<>();
         Collections.shuffle(draw);
 
-        background = new Texture(Gdx.files.internal("background1.png"));
-        batch = new SpriteBatch();
-        stage = new Stage();
-        cardActors = new Group();
-        enemiesActors = new Group();
-        tooltipedActors = new Group();
-
-        stage.addActor(GameProgress.topPanel);
-        GameProgress.topPanel.addElementsWithListeners(stage);
-
-        reward = null;
-        totalGoldReward = 0;
-
-        player.setArmor(0);
-        effectCheck();
-        cardDeal(player.getCardPerRound());
     }
     private void instanceArtefacts(){
         if (player.ifHasArtefact("Трофей"))
@@ -204,14 +192,14 @@ public class Fight implements Screen {
         for (Enemy enemy : enemies) {
             if (enemy.getHealth() <= 0) enemy.death();
         }
-        enemies.removeIf(enemy -> enemy.getHealth() <= 0);
+        enemies.removeIf(enemy -> enemy.isDeath);
         checkFinal();
     }
 
     private static void checkFinal() {
         if (enemies.size() == 0) {
             finalArtefacts();
-            rewardScene = new RewardScene(
+            rewardScene = new RewardScene(true,
                     player.ifHasArtefact("Щасливий ремінь") ? (int) (totalGoldReward * 1.25) : totalGoldReward,
                     reward);
             Gdx.input.setInputProcessor(rewardScene);
@@ -233,7 +221,7 @@ public class Fight implements Screen {
     }
 
     public void setReward(Artefact artefact) {
-        reward = artefact;
+        currentReward = artefact;
     }
 
     public void nextMove() {
@@ -276,6 +264,7 @@ public class Fight implements Screen {
 
     private void effectCheck() {
         player.effectCheck();
+        if (enemies.size()!=0)
         for (Enemy enemy : enemies) {
             enemy.effectCheck();
             checkKill();
@@ -283,8 +272,17 @@ public class Fight implements Screen {
     }
 
     private void enemyMove() {
+        int index = 0;
         for (Enemy enemy : enemies) {
-            if (player.getHealth() > 0) enemy.makeMove();
+            if (player.getHealth() > 0) {
+                timer.scheduleTask(new Timer.Task() {
+                    @Override
+                    public void run() {
+                        enemy.makeMove();
+                    }
+                }, index * 0.5f);
+                index++;
+            }
             else {
                 loose = true;
                 break;
@@ -293,13 +291,15 @@ public class Fight implements Screen {
     }
 
     private void addEnemiesToGroup() {
-        int y = Gdx.graphics.getHeight() / 3;
-        int x = Gdx.graphics.getWidth() / 2 + 100;
+        float y = Gdx.graphics.getHeight() / 3.3f;
+        float x = Gdx.graphics.getWidth() / 2f + 100;
         for (Enemy enemy : enemies) {
             enemiesActors.addActor(enemy.actor);
             tooltipedActors.addActor(enemy.actor.moveDisplay);
 
             enemy.actor.setPosition(x, y);
+            enemy.setBasicAnimation();
+        //    enemy.actor.addAction(Actions.color());
             x += enemy.actor.width * 1.2;
             totalGoldReward += enemy.goldReward;
         }
@@ -309,7 +309,7 @@ public class Fight implements Screen {
         playerEnergy = new EnergyActor(player.getEnergy(), 150, 150);
         drawButton = new Image(new Sprite(new Texture(Gdx.files.internal("draw.png"))));
         discardButton = new Image(new Sprite(new Texture(Gdx.files.internal("discard.png"))));
-        nextMoveButton = new NextMoveButton();
+        nextMoveButton = new NextMoveButton("Наступний хід");
         nextMoveButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -351,8 +351,23 @@ public class Fight implements Screen {
 
     @Override
     public void show() {
+
+        background = GameProgress.getRandomBackground();
+        batch = new SpriteBatch();
+        stage = new Stage();
+        cardActors = new Group();
+        enemiesActors = new Group();
+        tooltipedActors = new Group();
+
+        enemies = new ArrayList<>(currentEnemies);
+        reward = currentReward;
+
+        stage.addActor(GameProgress.topPanel);
+        GameProgress.topPanel.addElementsWithListeners(stage);
         stage.addActor(player.actor);
-        player.actor.setPosition(100, Gdx.graphics.getHeight() / 3f);
+        player.actor.clearActions();
+        player.actor.setPosition(100, Gdx.graphics.getHeight() / 3.3f);
+        player.setBasicAnimation();
         stage.addActor(enemiesActors);
         stage.addActor(cardActors);
         stage.addActor(tooltipedActors);
@@ -363,8 +378,18 @@ public class Fight implements Screen {
         shapeRenderer = new ShapeRenderer();
         stage.addListener(new FightInputController(cardActors));
 
+
+        player.setEnergy(player.getMaxEnergy());
+        player.setArmor(0);
+        effectCheck();
+        cardDeal(player.getCardPerRound());
+
+        for (Enemy enemy: enemies)
+            enemy.initialEffect();
         instanceArtefacts();
         enableListeners();
+
+
     }
 
     @Override
@@ -482,15 +507,13 @@ public class Fight implements Screen {
 class RewardScene extends Stage {
     Image black, goldSprite, artefactSprite, rays;
     Card[] choice;
-    ShapeRenderer shapeRenderer;
     Label label;
     int goldReward;
     Artefact artefactReward;
 
-    public RewardScene(int goldReward, Artefact artefactReward) {
+    public RewardScene(boolean cardReward,int goldReward, Artefact artefactReward) {
         this.goldReward = goldReward;
         this.artefactReward = artefactReward;
-        shapeRenderer = new ShapeRenderer();
         black = new Image(new Sprite(new Texture(Gdx.files.internal("black.png"))));
         black.setBounds(0, 0, getWidth(), getHeight());
         addActor(black);
@@ -504,6 +527,12 @@ class RewardScene extends Stage {
         black.addAction(Actions.fadeIn(4f, Interpolation.smooth));
         label.addAction(Actions.fadeIn(1f));
 
+        if (cardReward)getCard();
+        else if(goldReward != 0)getGold();
+        else getArtefact();
+
+    }
+    private void getCard(){
         choice = new Card[3];
         ArrayList<Card> cards = new ArrayList<>(GameProgress.allCards);
 
@@ -511,8 +540,7 @@ class RewardScene extends Stage {
             for (int i = 0; i < choice.length; i++) {
                 choice[i] = (Card) cards.remove(new Random().nextInt(cards.size())).clone();
             }
-        } catch (CloneNotSupportedException ignored) {
-        }
+        } catch (CloneNotSupportedException ignored) {}
 
         int gap = 0;
         for (Card card : choice) {
@@ -534,7 +562,6 @@ class RewardScene extends Stage {
             });
             card.cardActor.addAction(Actions.moveTo(card.cardActor.getX(), Gdx.graphics.getHeight() / 2f - card.cardActor.getHeight() / 2, 2f));
         }
-
     }
 
     private void chooseThisCard(Card card) {
@@ -564,8 +591,8 @@ class RewardScene extends Stage {
                             GameProgress.playerDeck.add(card);
                             if (goldReward != 0) getGold();
                             else{
-                                GameProgress.game.setScreen(GameProgress.generateFight());
                                 dispose();
+                                GameProgress.next();
                             }
                         }
                     }, 0.5f);
@@ -615,7 +642,7 @@ class RewardScene extends Stage {
                 if (artefactReward != null) getArtefact();
                 else {
                     dispose();
-                    GameProgress.game.setScreen(GameProgress.generateFight());
+                    GameProgress.next();
                 }
 
             }
@@ -651,7 +678,7 @@ class RewardScene extends Stage {
                 removeListener(this);
 
                 dispose();
-                GameProgress.game.setScreen(GameProgress.generateFight());
+                GameProgress.next();
 
             }
         });
