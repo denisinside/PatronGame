@@ -39,15 +39,25 @@ public class CardActor extends Actor {
 
         if (card instanceof AttackCard)
             cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("ATTACK_CARD.png")));
-        if (card instanceof SkillCard)
+        else if (card instanceof SkillCard)
             cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("SKILL.png")));
-        if (card instanceof CurseCard)
+        else if (card instanceof CurseCard)
             cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("CURSE.png")));
-        if (card instanceof StatusCard)
+        else if (card instanceof StatusCard)
             cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("STATUS.png")));
        // if (card instanceof TalantCard)
        //     cardTemplateTexture = new Sprite(new Texture(Gdx.files.internal("TALANT.png")));
-        cardImageTexture = new Sprite(new Texture(Gdx.files.internal("example.jpg")));
+
+        if(card.name.equals("Удар лапою"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Arm_Attack.png")));
+        else if(card.name.equals("Бронежилет"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Bulletproof.png")));
+        else if(card.name.equals("Шалений хвіст"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Crazy_tail.png")));
+        else if(card.name.equals("Банка огірків"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Cucumber_banka.png")));
+        else cardImageTexture = new Sprite(new Texture(Gdx.files.internal("example.jpg")));
+
         energyActor = new EnergyActor(card.cost, 100, 100);
 
         setBounds(x, y, cardWidth, cardHeight);
