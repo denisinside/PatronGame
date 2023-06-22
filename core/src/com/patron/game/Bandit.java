@@ -87,7 +87,7 @@ class FireBagMedic extends Enemy {
 class FireBagTank extends Enemy {
     public FireBagTank() {
         super("Солдатик-броневик", random.nextInt(3) + 10,
-                "bandit",200,300);
+                "FireBagTank",200,300);
         goldReward = MathUtils.random(7, 10);
 
         enemyMoves.add(new Defend(random.nextInt(2) + 4, true));

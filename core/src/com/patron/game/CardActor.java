@@ -126,8 +126,7 @@ public class CardActor extends Actor {
             selected = true;
             setZIndex(15);
             addAction(Actions.sizeTo((float) (cardWidth * 1.5), (float) (cardHeight * 1.5), 0.5f));
-            // я єбав (тут треба зробити, щоб інші селектід картки були вже не селектід)
-            //upd ура зробив (залишу для історії)
+
             for (Actor cardActor : Fight.cardActors.getChildren()) {
                 if (cardActor instanceof CardActor && cardActor != CardActor.this) {
                     if (((CardActor) cardActor).selected) ((CardActor) cardActor).select();
