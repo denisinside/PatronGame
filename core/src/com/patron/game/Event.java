@@ -82,6 +82,7 @@ public class Event implements Screen {
 
         stage.act();
         stage.draw();
+        GameSound.updateVolume();
     }
 
     @Override
@@ -176,6 +177,7 @@ public class Event implements Screen {
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     if (button == Input.Buttons.LEFT) {
+                        GameSound.buttonSound.setVolume(GameSound.buttonSound.play(),GameSound.soundVolume);
                         if (choiceNumber == 1) EventButton.this.event.firstChoice();
                         if (choiceNumber == 2) EventButton.this.event.secondChoice();
                         if (choiceNumber == 3) EventButton.this.event.thirdChoice();
@@ -300,8 +302,6 @@ class AntBlacksmithEvent extends Event {
                 Card copy = (Card) selectedCard.card.clone();
                 copy.cardActor = new CardActor(copy, 1, 1);
                 GameProgress.playerDeck.add(copy);
-
-
                 eventResult = "\"Це були справжні тортури\" - подумав Патрон," +
                         "розглядаючи копію обраної картки.";
                 setEventResult();
@@ -320,7 +320,10 @@ class AntBlacksmithEvent extends Event {
         cardList.exitListenerActivate(false);
         cardList.setCardSelectionListener(selectedCard -> {
             try {
-                GameProgress.playerDeck.set(GameProgress.playerDeck.indexOf(selectedCard.card),
+                int index = GameProgress.playerDeck.indexOf(selectedCard.card);
+                selectedCard.card = null;
+                selectedCard.remove();
+                GameProgress.playerDeck.set(index,
                         (Card) GameProgress.allCards.get(MathUtils.random(0, GameProgress.allCards.size() - 1)).clone());
 
                 eventResult = "\"І як мені його назад розв'язати?\" - сказав з нерозумінням Патрон," +
@@ -432,8 +435,7 @@ class BusinessOfferEvent extends Event {
             cardList.exitListenerActivate(false);
             cardList.setCardSelectionListener(selectedCard -> {
                 try {
-                    GameProgress.playerDeck.set(GameProgress.playerDeck.indexOf(selectedCard.card),
-                            (Card) GameProgress.allCards.get(MathUtils.random(0, GameProgress.allCards.size() - 1)).clone());
+                    GameProgress.playerDeck.remove(selectedCard.card);
 
 
                     eventResult = "До Патрона підійшла якась дивна пацючка, яка спочатку пропонувала " +
@@ -687,7 +689,7 @@ class RelicAndTrapEvent extends Event{
         first.setTooltip(new CardTooltip(CardFactory.getCurse("Травма"),first));
         EventButton second = new EventButton("Піти", null, null, 2, this);
 
-        eventSprite = new Sprite(new Texture(Gdx.files.internal("icons\\EventSprites\\PoorRaccoon.png")));
+        eventSprite = new Sprite(new Texture(Gdx.files.internal("icons\\EventSprites\\RelicAndTrap.png")));
         buttons.add(first, second);
 
         addButtonsToStage();
@@ -737,6 +739,7 @@ class BadNewsEvent extends Event{
             third = new EventButton("Гроші", null,"Втратити всі гроші",3,this);
         else{
             third  = new EventButton(card3.name, null, "Втратити картку", 3, this);
+            third.setTooltip(new CardTooltip(card3,third));
         }
 
         eventSprite = new Sprite(new Texture(Gdx.files.internal("icons\\EventSprites\\BadNews.png")));

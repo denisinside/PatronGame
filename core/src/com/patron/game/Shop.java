@@ -24,55 +24,56 @@ import java.util.HashMap;
 import static com.patron.game.GameProgress.*;
 
 public class Shop implements Screen {
+    static int removeCardCost = 50;
+    public boolean isEventShop = false;
     Image trader, background, windowBackground;
     Stage stage;
-    boolean clicked;
     Array<Card> cards;
-    HashMap<Card,Integer> cardPrice;
+    HashMap<Card, Integer> cardPrice;
     Array<Artefact> artefacts;
-    HashMap<Artefact,Integer> artefactPrice;
+    HashMap<Artefact, Integer> artefactPrice;
     Label[] cardLabels;
     Label[] artefactLabels;
     Label name;
     Group tradeWindow;
-    static int removeCardCost = 50;
     NextMoveButton nextMoveButton;
-    public boolean isEventShop = false;
 
     public Shop() {
         background = new Image(new Sprite(getRandomBackground()));
         background.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
-    private void addName(){
-        trader.addListener(new ClickListener(){
+
+    private void addName() {
+        trader.addListener(new ClickListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 name.addAction(Actions.fadeIn(0.3f));
-                name.setBounds(trader.getX(),trader.getY()-15,trader.getWidth(),10);
+                name.setBounds(trader.getX(), trader.getY() - 15, trader.getWidth(), 10);
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 name.addAction(Actions.fadeOut(0.3f));
-                name.setBounds(trader.getX(),trader.getY()-15,trader.getWidth(),10);
+                name.setBounds(trader.getX(), trader.getY() - 15, trader.getWidth(), 10);
             }
         });
     }
 
-    private void openTradeWindowListener(){
+    private void openTradeWindowListener() {
         addName();
-        trader.addListener(new ClickListener(){
+        trader.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 tradeWindow.addAction(Actions.show());
                 nextMoveButton.addAction(Actions.hide());
 
-                trader.setPosition(windowBackground.getX()+windowBackground.getWidth()+50,trader.getY());
+                trader.setPosition(windowBackground.getX() + windowBackground.getWidth() + 50, trader.getY());
                 trader.clearListeners();
                 addName();
-                trader.addListener(new ClickListener(){
+                trader.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
+                        GameSound.buttonSound.setVolume(GameSound.buttonSound.play(), GameSound.soundVolume);
                         tradeWindow.addAction(Actions.hide());
                         nextMoveButton.addAction(Actions.show());
                         trader.clearListeners();
@@ -83,57 +84,58 @@ public class Shop implements Screen {
             }
         });
     }
-    private void createTradeWindow(){
+
+    private void createTradeWindow() {
         tradeWindow = new Group();
         windowBackground = new Image(new Sprite(new Texture(Gdx.files.internal("trade_window_bg.png"))));
-        windowBackground.setSize(1500,800);
-        windowBackground.setPosition(Gdx.graphics.getWidth()/20f,Gdx.graphics.getHeight()/8f);
+        windowBackground.setSize(1500, 800);
+        windowBackground.setPosition(Gdx.graphics.getWidth() / 20f, Gdx.graphics.getHeight() / 8f);
         tradeWindow.addActor(windowBackground);
 
 
         int indexX = 0;
         int indexY = 0;
         int index = 0;
-        for (Card card : cards){
+        for (Card card : cards) {
             tradeWindow.addActor(card.cardActor);
-            card.cardActor.setBounds((indexX*CardActor.cardWidth*1.4f*1.2f + 80 + windowBackground.getX()),
-                                        indexY*CardActor.cardHeight*1.4f +indexY*30+80 + windowBackground.getY(),
-                                            CardActor.cardWidth*1.4f,CardActor.cardHeight*1.4f);
-            cardLabels[index].setBounds(card.cardActor.getX(),card.cardActor.getY()-15,card.cardActor.getWidth(),10);
+            card.cardActor.setBounds((indexX * CardActor.cardWidth * 1.4f * 1.2f + 80 + windowBackground.getX()),
+                    indexY * CardActor.cardHeight * 1.4f + indexY * 30 + 80 + windowBackground.getY(),
+                    CardActor.cardWidth * 1.4f, CardActor.cardHeight * 1.4f);
+            cardLabels[index].setBounds(card.cardActor.getX(), card.cardActor.getY() - 15, card.cardActor.getWidth(), 10);
             cardLabels[index].setAlignment(Align.center);
             tradeWindow.addActor(cardLabels[index]);
             index++;
-            if (index % 2 == 1){
+            if (index % 2 == 1) {
                 indexY = 1;
-            }else {
+            } else {
                 indexY = 0;
             }
             if (index % 2 == 0) indexX++;
         }
 
         indexX = 0;
-        for (Artefact artefact : artefacts){
+        for (Artefact artefact : artefacts) {
             tradeWindow.addActor(artefact);
-            artefact.setSize(128,128);
-            artefact.setPosition((windowBackground.getWidth()*0.55f + indexX*artefact.getWidth()+50 + windowBackground.getX()),
-                    windowBackground.getHeight()*0.7f +  windowBackground.getY());
-            artefactLabels[indexX].setBounds(artefact.getX(),artefact.getY()-15,artefact.getWidth(),10);
+            artefact.setSize(128, 128);
+            artefact.setPosition((windowBackground.getWidth() * 0.55f + indexX * artefact.getWidth() + 50 + windowBackground.getX()),
+                    windowBackground.getHeight() * 0.7f + windowBackground.getY());
+            artefactLabels[indexX].setBounds(artefact.getX(), artefact.getY() - 15, artefact.getWidth(), 10);
             artefactLabels[indexX].setAlignment(Align.center);
             tradeWindow.addActor(artefactLabels[indexX]);
             indexX++;
         }
         Image removeCard = new Image(new Sprite(new Texture(Gdx.files.internal("remove_card.png"))));
-        Label removeCardLabel = new Label(removeCardCost+"",new Label.LabelStyle(Fonts.ICON_NUMBERS,Color.GOLD));
+        Label removeCardLabel = new Label(removeCardCost + "", new Label.LabelStyle(Fonts.ICON_NUMBERS, Color.GOLD));
 
-        removeCard.setBounds(windowBackground.getWidth()*0.55f + 50 + windowBackground.getX(),
-                              windowBackground.getHeight()*0.1f +  windowBackground.getY(),
-                                500,400);
-        removeCardLabel.setBounds(removeCard.getX()+removeCard.getWidth()*0.75f,
-                removeCard.getY()+removeCard.getHeight()*0.4f,removeCard.getWidth()*0.25f,10);
+        removeCard.setBounds(windowBackground.getWidth() * 0.55f + 50 + windowBackground.getX(),
+                windowBackground.getHeight() * 0.1f + windowBackground.getY(),
+                500, 400);
+        removeCardLabel.setBounds(removeCard.getX() + removeCard.getWidth() * 0.75f,
+                removeCard.getY() + removeCard.getHeight() * 0.4f, removeCard.getWidth() * 0.25f, 10);
 
         tradeWindow.addActor(removeCard);
         tradeWindow.addActor(removeCardLabel);
-        removeCard.addListener(new ClickListener(){
+        removeCard.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (player.money >= removeCardCost) {
@@ -149,7 +151,7 @@ public class Shop implements Screen {
                             ),
                             Actions.run(() -> {
                                 removeCard.addAction(Actions.removeActor());
-                                CardList cardList = new CardList(GameProgress.playerDeck,stage);
+                                CardList cardList = new CardList(GameProgress.playerDeck, stage);
                                 cardList.activateChoice();
                                 cardList.exitListenerActivate(false);
                                 cardList.setCardSelectionListener(selectedCard -> {
@@ -179,16 +181,17 @@ public class Shop implements Screen {
         try {
             for (int i = 0; i < 6; i++) {
                 cards.add((Card) cardStock.remove(MathUtils.random(cardStock.size() - 1)).clone());
-                cards.get(i).cardActor = new CardActor(cards.get(i),100,100);
-                cardPrice.put(cards.get(i),MathUtils.random(35,100));
-                cardLabels[cards.indexOf(cards.get(i),true)] = new Label(cardPrice.get(cards.get(i))+"",new Label.LabelStyle(Fonts.ICON_NUMBERS, Color.GOLD));
+                cards.get(i).cardActor = new CardActor(cards.get(i), 100, 100);
+                cardPrice.put(cards.get(i), MathUtils.random(35, 100));
+                cardLabels[cards.indexOf(cards.get(i), true)] = new Label(cardPrice.get(cards.get(i)) + "", new Label.LabelStyle(Fonts.ICON_NUMBERS, Color.GOLD));
             }
-        } catch (CloneNotSupportedException ignored) {}
+        } catch (CloneNotSupportedException ignored) {
+        }
         for (int i = 0; i < 4; i++) {
             if (artefactStock.size() != 0) {
                 artefacts.add(artefactStock.remove(MathUtils.random(artefactStock.size() - 1)));
                 artefactPrice.put(artefacts.get(i), MathUtils.random(100, 180));
-                artefactLabels[artefacts.indexOf(artefacts.get(i),true)] = new Label(artefactPrice.get(artefacts.get(i))+"",new Label.LabelStyle(Fonts.ICON_NUMBERS, Color.GOLD));
+                artefactLabels[artefacts.indexOf(artefacts.get(i), true)] = new Label(artefactPrice.get(artefacts.get(i)) + "", new Label.LabelStyle(Fonts.ICON_NUMBERS, Color.GOLD));
             }
         }
 
@@ -198,8 +201,8 @@ public class Shop implements Screen {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     if (player.money >= cardPrice.get(card)) {
+                        GameSound.buySound.setVolume(GameSound.buySound.play(), GameSound.soundVolume);
                         player.money -= cardPrice.get(card);
-                        playerDeck.add(card);
 
                         cardLabels[cards.indexOf(card, true)].addAction(Actions.removeActor());
                         card.cardActor.addAction(Actions.sequence(
@@ -208,6 +211,7 @@ public class Shop implements Screen {
                                         Actions.moveTo(card.cardActor.getX() - (card.cardActor.getWidth() / 10 - card.cardActor.getWidth()) / 2, card.cardActor.getY() - (card.cardActor.getWidth() / 10 - card.cardActor.getWidth()) / 2, 2f, Interpolation.fastSlow),
                                         Actions.sizeTo(card.cardActor.getWidth() / 10, card.cardActor.getWidth() / 10, 2f, Interpolation.smooth)
                                 ),
+                                Actions.fadeIn(0.01f),
                                 Actions.run(() -> {
                                     card.cardActor.addAction(Actions.removeActor());
                                     card.cardActor.setDraggable(true);
@@ -223,20 +227,16 @@ public class Shop implements Screen {
             artefact.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    if (player.money >=  artefactPrice.get(artefact)) {
+                    if (player.money >= artefactPrice.get(artefact)) {
+                        GameSound.buySound.setVolume(GameSound.buySound.play(), GameSound.soundVolume);
+                        allArtefacts.removeIf(artefact1 -> artefact1.name.equals(artefact.name));
                         player.money -= artefactPrice.get(artefact);
-                        player.addArtefact(artefact);
                         artefactLabels[artefacts.indexOf(artefact, true)].addAction(Actions.removeActor());
                         artefact.addAction(Actions.sequence(
-                                Actions.parallel(
-                                        Actions.fadeOut(0.5f),
-                                        Actions.moveTo(artefact.getX() - (artefact.getWidth() / 10 - artefact.getWidth()) / 2, artefact.getY() - (artefact.getWidth() / 10 - artefact.getWidth()) / 2, 2f, Interpolation.fastSlow),
-                                        Actions.sizeTo(artefact.getWidth() / 10, artefact.getWidth() / 10, 2f, Interpolation.smooth)
-                                ),
+                                Actions.fadeOut(0.5f),
+                                Actions.fadeIn(0.01f),
                                 Actions.run(() -> {
-                                    artefact.addAction(Actions.removeActor());
                                     player.addArtefact(artefact);
-                                    artefact.setSize(64,64);
                                 })
                         ));
                     }
@@ -249,6 +249,7 @@ public class Shop implements Screen {
     @Override
     public void show() {
 
+        GameSound.shopSound.setVolume(GameSound.shopSound.play(), GameSound.soundVolume);
 
 
         trader = new Image(new Sprite(new Texture(Gdx.files.internal("NPC\\Rat_Trader.png"))));
@@ -279,7 +280,7 @@ public class Shop implements Screen {
         tradeWindow.addAction(Actions.hide());
         openTradeWindowListener();
 
-        nextMoveButton.addListener(new ClickListener(){
+        nextMoveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 GameProgress.next();
@@ -293,8 +294,7 @@ public class Shop implements Screen {
         stage.act();
         stage.draw();
 
-        if (clicked) {
-        }
+        GameSound.updateVolume();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.patron.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
@@ -29,7 +30,7 @@ public class Bandit extends Enemy {
 class RadioactiveRat extends Enemy {
     public RadioactiveRat() {
         super("Радіоактивний щур", random.nextInt(7) + 27,
-                "bandit",200,300);
+                "RadioactiveRat",300,250);
         goldReward = MathUtils.random(13, 20);
 
         Attack[] attacks = {
@@ -49,7 +50,7 @@ class RadioactiveRat extends Enemy {
 
 class FireBagSoldier extends Enemy {
     public FireBagSoldier() {
-        super("Солдатик-солдат", random.nextInt(5) + 14,
+        super("Чмоня-солдат", random.nextInt(5) + 14,
                 "Soldier",200,300);
         goldReward = MathUtils.random(8, 14);
 
@@ -67,7 +68,7 @@ class FireBagSoldier extends Enemy {
 
 class FireBagMedic extends Enemy {
     public FireBagMedic() {
-        super("Солдатик-медик", random.nextInt(4) + 12,
+        super("Чмоня-медик", random.nextInt(4) + 12,
                 "bandit",200,300);
         goldReward = MathUtils.random(8, 10);
 
@@ -86,7 +87,7 @@ class FireBagMedic extends Enemy {
 
 class FireBagTank extends Enemy {
     public FireBagTank() {
-        super("Солдатик-броневик", random.nextInt(3) + 10,
+        super("Чмоня-броневик", random.nextInt(3) + 10,
                 "FireBagTank",200,300);
         goldReward = MathUtils.random(7, 10);
 
@@ -108,7 +109,7 @@ class FireBagTank extends Enemy {
 
 class FireBagSniper extends Enemy {
     public FireBagSniper() {
-        super("Солдатик-снайпер", random.nextInt(4) + 15,
+        super("Чмоня-снайпер", random.nextInt(4) + 15,
                 "bandit",200,300);
         goldReward = MathUtils.random(9, 15);
 
@@ -323,6 +324,9 @@ class MisterMeow extends Enemy {
     public void death() {
         if (!secondChance) {
             secondChance = true;
+            Sound explosion = Gdx.audio.newSound(Gdx.files.internal("sounds\\Roar.mp3"));
+            explosion.setVolume(explosion.play(),GameSound.soundVolume);
+
             setMaxHealth(MathUtils.random(10) + 119);
             setHealth(getMaxHealth());
             actor.healthBar.setMaxValue(getHealth());
@@ -354,13 +358,13 @@ class Diggy extends Enemy {
         goldReward = MathUtils.random(12, 18);
         if (MathUtils.random(1) == 1) {
             enemyMoves.add(new Attack(8));
-            enemyMoves.add(new Defend(10, true));
+            enemyMoves.add(new Defend(12, true));
             enemyMoves.add(new Attack(4, 3));
-            enemyMoves.add(new Defend(10, true));
+            enemyMoves.add(new Defend(12, true));
         } else {
-            enemyMoves.add(new Defend(10, true));
+            enemyMoves.add(new Defend(12, true));
             enemyMoves.add(new Attack(4, 3));
-            enemyMoves.add(new Defend(10, true));
+            enemyMoves.add(new Defend(12, true));
             enemyMoves.add(new Attack(8));
         }
 
@@ -368,10 +372,10 @@ class Diggy extends Enemy {
     }
 }
 
-class Norbert extends Enemy {
-    public Norbert() {
+class Norby extends Enemy {
+    public Norby() {
         super("Норберт", MathUtils.random(9) + 45,
-                "Norbert",300,400);
+                "Norby",300,400);
         goldReward = MathUtils.random(10, 16);
         if (MathUtils.random(1) == 1) {
             enemyMoves.add(new Impact(new Effect[]{new StrengthEffect(this, 2)}, true));
@@ -409,13 +413,14 @@ class ExplosiveCat extends Enemy {
 
     @Override
     public void castImpact(Action impact) {
+        Sound explosion = Gdx.audio.newSound(Gdx.files.internal("sounds\\Explosion.mp3"));
+        explosion.setVolume(explosion.play(),GameSound.soundVolume);
         player.getDamage(30);
         death();
     }
 
     @Override
     public void initialEffect() {
-
         Effect prikol = new Effect("Вибух", "Коли ефект пропаде, Патрон отримає 30 шкоди від вибуху", false, false, 3);
         prikol.effectType = EffectType.BUFF;
         addEffect(prikol);
@@ -424,8 +429,8 @@ class ExplosiveCat extends Enemy {
 
 class Hedgehog extends Enemy {
     public Hedgehog() {
-        super("Норберт", MathUtils.random(7) + 35,
-                "Hedgehog",250,125);
+        super("КіберЇжак", MathUtils.random(7) + 35,
+                "Hedgehog",250,155);
         goldReward = MathUtils.random(10, 16);
         Effect spikes = new Effect("Колючки", "Наносить шкоду атакуючому", true, true, 2);
         spikes.effectType = EffectType.BUFF;
@@ -464,7 +469,6 @@ class Cutter extends Enemy {
 
         enemyMoves.add(ultaAttack);
         enemyMoves.add(new Attack(12));
-        enemyMoves.add(ultaAttack);
 
 
         actor.moveDisplay.setMove(enemyMoves.get(moveIndex));
@@ -473,7 +477,7 @@ class Cutter extends Enemy {
     @Override
     public void attack(Action attack) {
         super.attack(attack);
-        if (((Attack)attack).damage == 15) ultaNumber++;
+        if (Fight.move % 2 == 0) ultaNumber++;
         ultaAttack.count = ultaNumber;
     }
 

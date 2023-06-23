@@ -102,22 +102,34 @@ public class ChooseNextRoom implements Screen {
         secondChoiceIcon.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                GameSound.buttonSound.setVolume(GameSound.buttonSound.play(),GameSound.soundVolume);
                 dispose();
-                if (secondChoice instanceof Event) GameProgress.events.remove(secondChoice);
+                if (secondChoice instanceof Event){
+                    System.out.println(2222);
+                    GameProgress.events.removeIf(event1 -> event1.name.getText().equals(((Event)secondChoice).name.getText()));
+                }
+
                 GameProgress.game.setScreen(secondChoice);
             }
         });
         firstChoiceIcon.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                GameSound.buttonSound.setVolume(GameSound.buttonSound.play(),GameSound.soundVolume);
                 dispose();
-                if (firstChoice instanceof Event) GameProgress.events.remove(firstChoice);
+                if (firstChoice instanceof Event){
+                    System.out.println(1111);
+                    GameProgress.events.removeIf(event1 -> event1.name.getText().equals(((Event)firstChoice).name.getText()));
+                }
                 GameProgress.game.setScreen(firstChoice);
             }
         });
     }
     @Override
     public void show() {
+        if (!GameSound.wayMusic.isPlaying())
+            GameSound.wayMusic.play();
+
         Gdx.input.setInputProcessor(stage);
         stage.addActor(GameProgress.topPanel);
         GameProgress.topPanel.addElementsWithListeners(stage);
@@ -128,6 +140,7 @@ public class ChooseNextRoom implements Screen {
     public void render(float delta) {
         stage.act();
         stage.draw();
+        GameSound.updateVolume();
     }
 
     @Override

@@ -52,6 +52,14 @@ public class TopPanel extends Group {
                 getStage().addActor(new CardList(GameProgress.playerDeck, getStage()));
             }
         });
+
+        settingsIcon.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                getStage().addActor(GameProgress.settingsWindow);
+                GameProgress.settingsWindow.addAction(Actions.show());
+            }
+        });
     }
 
     @Override
