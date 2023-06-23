@@ -408,8 +408,8 @@ class BusinessOfferEvent extends Event {
     public BusinessOfferEvent() {
         super("Ділова зустріч",
                 "Патрон якимось чином зайшов на пацюковий бізнес-центр. Спочатку він навіть подумав, що це дніпровські офіси." +
-                        "Починаючі підприємці одразу запропонували свої послуги: " +
-                        "Видалення карти, зцілення та випадкову реліквію зі складу підземного АТБ."
+                        " Починаючі підприємці одразу запропонували свої послуги: " +
+                        "\nВидалення карти, зцілення та випадкову реліквію зі складу підземного АТБ."
         );
         healAmount = MathUtils.random(20) + 10;
 
@@ -456,18 +456,21 @@ class BusinessOfferEvent extends Event {
         if (GameProgress.player.money >= 30) {
             eventResult = "Пацюки принесли Патрону святу воду, заряджену від телевізора. Надиво, вона спрацювала і Патрон почуває себе краще";
             GameProgress.player.heal(healAmount);
-            GameProgress.player.money -= 50;
+            GameProgress.player.money -= 30;
             setEventResult();
         }
     }
     @Override
     protected void thirdChoice() {
-        if (GameProgress.player.money >= 80) {
-            eventResult = "Неймовірний збіг, але АТБ розташовувалося прямо над Патроном. Пацюк поліз по трубі до складу, а звідти в " +
-                    "зубах приніс Патрону нову реліквію. Але було темно, тому він навіть й не знає, що взяв.";
-            GameProgress.player.addArtefact(GameProgress.getRandomArtefact());
-            GameProgress.player.money -= 80;
-            setEventResult();
+
+        if (GameProgress.allArtefacts.size() != 0) {
+            if (GameProgress.player.money >= 80) {
+                eventResult = "Неймовірний збіг, але АТБ розташовувалося прямо над Патроном. Пацюк поліз по трубі до складу, а звідти в " +
+                        "зубах приніс Патрону нову реліквію. Але було темно, тому він навіть й не знає, що взяв.";
+                GameProgress.player.addArtefact(GameProgress.getRandomArtefact());
+                GameProgress.player.money -= 80;
+                setEventResult();
+            }
         }
     }
     @Override
@@ -599,11 +602,13 @@ class HeavenTempleEvent extends Event{
 
     @Override
     protected void firstChoice() {
-        eventResult = "\"Ця штука йому вже не понадобиться! Ха-ха-гав!\" - сміявся Патрон, поки не почув" +
-                "неймовірне безсилля, через яке реліквія покотилася по сходам і йому треба було повертатись...";
-        GameProgress.player.addArtefact(GameProgress.getRandomArtefact());
-        GameProgress.playerDeck.add(CardFactory.getCurse("Безсилля"));
-        setEventResult();
+        if (GameProgress.allArtefacts.size() != 0) {
+            eventResult = "\"Ця штука йому вже не знадобиться! Ха-ха-гав!\" - сміявся Патрон, поки не почув" +
+                    "неймовірне безсилля, через яке реліквія покотилася по сходам і йому треба було повертатись...";
+            GameProgress.player.addArtefact(GameProgress.getRandomArtefact());
+            GameProgress.playerDeck.add(CardFactory.getCurse("Безсилля"));
+            setEventResult();
+        }
     }
 
     @Override
@@ -644,23 +649,27 @@ class PoorRaccoonEvent extends Event{
 
     @Override
     protected void firstChoice() {
-        if (GameProgress.player.money >= 80){
-            eventResult = "\"Дякую за покупку, приходьте ще, хє-хє\" - єхидно сказав Єнот та пішов геть." +
-                    "А поки він йшов, він побачив, як копії купленої реліквії випадали у нього з карманів...";
-            GameProgress.player.addArtefact(GameProgress.getRandomArtefact());
-            GameProgress.player.money -= 80;
-            setEventResult();
+        if (GameProgress.allArtefacts.size() != 0) {
+            if (GameProgress.player.money >= 80) {
+                eventResult = "\"Дякую за покупку, приходьте ще, хє-хє\" - єхидно сказав Єнот та пішов геть." +
+                        "А поки він йшов, він побачив, як копії купленої реліквії випадали у нього з карманів...";
+                GameProgress.player.addArtefact(GameProgress.getRandomArtefact());
+                GameProgress.player.money -= 80;
+                setEventResult();
+            }
         }
     }
 
     @Override
     protected void secondChoice() {
-        eventResult = "Поки Єнот поклав пакет з реліквією та відвернувся, Патрон вхопив пакет" +
-                "у зуби та побіг геть під крики Єнота. Потім він не зрозумів, навіщо це зробив," +
-                "він ж чемна собака... а раптом хтось дізнається.. Жах!";
-        GameProgress.player.addArtefact(GameProgress.getRandomArtefact());
-        GameProgress.playerDeck.add(CardFactory.getCurse("Сором"));
-        setEventResult();
+        if (GameProgress.allArtefacts.size() != 0) {
+            eventResult = "Поки Єнот поклав пакет з реліквією та відвернувся, Патрон вхопив пакет" +
+                    "у зуби та побіг геть під крики Єнота. Потім він не зрозумів, навіщо це зробив," +
+                    "він ж чемна собака... а раптом хтось дізнається.. Жах!";
+            GameProgress.player.addArtefact(GameProgress.getRandomArtefact());
+            GameProgress.playerDeck.add(CardFactory.getCurse("Сором"));
+            setEventResult();
+        }
     }
 
     @Override
@@ -699,11 +708,13 @@ class RelicAndTrapEvent extends Event{
 
     @Override
     protected void firstChoice() {
-        eventResult = "Патрон немов агент перестрибував усі пастки, окрім однієї, яка травмувала його." +
-                "Але він дістав реліквію та переміг пастки свого діда!";
-        GameProgress.player.addArtefact(GameProgress.getRandomArtefact());
-        GameProgress.playerDeck.add(CardFactory.getCurse("Травма"));
-        setEventResult();
+        if (GameProgress.allArtefacts.size() != 0) {
+            eventResult = "Патрон немов агент перестрибував усі пастки, окрім однієї, яка травмувала його." +
+                    "Але він дістав реліквію та переміг пастки свого діда!";
+            GameProgress.player.addArtefact(GameProgress.getRandomArtefact());
+            GameProgress.playerDeck.add(CardFactory.getCurse("Травма"));
+            setEventResult();
+        }
     }
 
     @Override

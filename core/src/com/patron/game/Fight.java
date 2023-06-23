@@ -197,6 +197,8 @@ public class Fight implements Screen {
     private void instanceArtefacts() {
         if (player.ifHasArtefact("Трофей"))
             for (Enemy enemy : enemies) enemy.addEffect(new WeaknessEffect(1));
+        if (player.ifHasArtefact("Стріла Артеміди"))
+            for (Enemy enemy : enemies) enemy.addEffect(new VulnerabilityEffect(1));
 
         if (player.ifHasArtefact("Залізний щит"))
             player.addArmor(12);

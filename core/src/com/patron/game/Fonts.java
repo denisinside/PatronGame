@@ -12,7 +12,7 @@ public class Fonts {
     static FreeTypeFontGenerator maurysselBoldFontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Mauryssel_Bold.ttf"));
     static FreeTypeFontGenerator lisichkaComicFontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Lisichka_comic.ttf"));
 
-    public static final String characters = "0123456789()[]<>+-=/*!?`%;\"', .QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnmАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯЇїІіЄєабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    public static final String characters = "0123456789()[]<>+:-=/*!?`%;\"', .QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnmАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯЇїІіЄєабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
 
     static FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 

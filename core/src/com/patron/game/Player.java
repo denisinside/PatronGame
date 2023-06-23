@@ -85,6 +85,8 @@ public class Player {
                 for (int i = 0; i < 3; i++) {
                     Card card = (Card) cards.remove(new Random().nextInt(cards.size())).clone();
                     card.cardActor= new CardActor(card,100,100);
+                    card.cardActor.addAction(Actions.show());
+                    card.cardActor.addAction(Actions.fadeIn(0.01f));
                     GameProgress.playerDeck.add(card);
                 }
             } catch (CloneNotSupportedException ignored) {

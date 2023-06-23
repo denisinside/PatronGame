@@ -135,13 +135,21 @@ class AttackCard extends Card {
                 pickUpCard(1);
                 break;
             case "Безглуздий удар":
-                Fight.draw.add(Fight.draw.size()-1 <= 1 ? 0 : MathUtils.random(Fight.draw.size()-1), CardFactory.getStatus("Запаморочення"));
+                if (Fight.draw.size() > 1) {
+                    Fight.draw.add(MathUtils.random(Fight.draw.size() - 1), CardFactory.getStatus("Запаморочення"));
+                } else if (Fight.draw.size() == 1) {
+                    Fight.draw.add(CardFactory.getStatus("Запаморочення"));
+                }
                 break;
             case "У слабке місце":
                 if (enemy.ifHas(new VulnerabilityEffect(1))) player.setEnergy(player.getEnergy() + 1);
                 break;
             case "Відчайдушний удар":
-                Fight.draw.add(Fight.draw.size() > 0 ? rnd.nextInt(Fight.draw.size()) : 0, CardFactory.getStatus("Рана"));
+                if (Fight.draw.size() > 1) {
+                    Fight.draw.add(MathUtils.random(Fight.draw.size() - 1), CardFactory.getStatus("Рана"));
+                } else if (Fight.draw.size() == 1) {
+                    Fight.draw.add(CardFactory.getStatus("Рана"));
+                }
                 break;
             case "Маневр":
                 skillStrength = 5;

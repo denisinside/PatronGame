@@ -234,10 +234,10 @@ class Schweinokar extends Enemy {
         if (MathUtils.random(1) == 1) {
             enemyMoves.add(new Attack(3, 2));
             enemyMoves.add(new Attack(7, new Effect[]{new CureEffect(this, 3)}));
-            enemyMoves.add(new Attack(3, 2));
+            enemyMoves.add(new Attack(4, 3));
             enemyMoves.add(new Attack(8, new Effect[]{new FragilityEffect(3)}));
         } else {
-            enemyMoves.add(new Attack(3, 2));
+            enemyMoves.add(new Attack(4, 3));
             enemyMoves.add(new Attack(8, new Effect[]{new FragilityEffect(3)}));
             enemyMoves.add(new Attack(3, 2));
             enemyMoves.add(new Attack(7, new Effect[]{new CureEffect(this, 3)}));

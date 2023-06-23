@@ -32,6 +32,7 @@ public class Treasury implements Screen {
         Gdx.input.setInputProcessor(stage);
         stage.addActor(GameProgress.topPanel);
         GameProgress.topPanel.addElementsWithListeners(stage);
+        GameProgress.allArtefacts.remove(artefact);
 
         stage.addActor(player.actor);
         player.actor.setPosition(Gdx.graphics.getWidth()/3f, Gdx.graphics.getHeight() / 4f);

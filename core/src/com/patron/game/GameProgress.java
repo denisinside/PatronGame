@@ -344,13 +344,18 @@ public class GameProgress extends Game {
                 Shop shop = new Shop();
                 shop.isEventShop = true;
                 return shop;
-            } else return getRandomEvent();
+            } else if (events.size() == 0) return getNewRoom();
+            else return getRandomEvent();
         }
     }
 
     private static Event getRandomEvent() {
-        Event event = events.get(MathUtils.random(events.size() - 1));
-        events.remove(event);
+        Event event = null;
+        if (events.size() > 1) {
+            event = events.get(MathUtils.random(events.size() - 1));
+        } else if (events.size() == 1) {
+            event = events.get(0);
+        }
         return event;
     }
 
@@ -359,13 +364,22 @@ public class GameProgress extends Game {
     }
 
     private static Treasury createTreasury() {
-        Artefact artefact = allArtefacts.get(MathUtils.random(allArtefacts.size() - 1));
-        allArtefacts.remove(artefact);
+        Artefact artefact = null;
+        if (allArtefacts.size() > 1) {
+            artefact = allArtefacts.get(MathUtils.random(allArtefacts.size() - 1));
+        } else if (allArtefacts.size() == 1) {
+            artefact = allArtefacts.get(0);
+        }
         return new Treasury(artefact);
     }
 
     public static Artefact getRandomArtefact() {
-        Artefact artefact = allArtefacts.get(MathUtils.random(allArtefacts.size() - 1));
+        Artefact artefact = null;
+        if (allArtefacts.size() > 1) {
+            artefact = allArtefacts.get(MathUtils.random(allArtefacts.size() - 1));
+        } else if (allArtefacts.size() == 1) {
+            artefact = allArtefacts.get(0);
+        }
         allArtefacts.remove(artefact);
         return artefact;
     }
