@@ -59,13 +59,17 @@ public class CardActor extends Actor {
         else if(card.name.equals("Бинт та ліки"))
             cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Bandage_cure.png")));
         else if(card.name.equals("Смаколик"))
-            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Sweety.jpg")));
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Sweety.png")));
         else if(card.name.equals("Укус"))
-            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Bite.jpg")));
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Bite.png")));
         else if(card.name.equals("Різанина"))
             cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Butcher.jpg")));
         else if(card.name.equals("Собаче панування"))
-            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Hotpot.png")));
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Domination.png")));
+        else if(card.name.equals("Айкідо"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Aikido.jpg")));
+        else if(card.name.equals("Відчайдушний удар"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Reckless_attack.jpg")));
         else cardImageTexture = new Sprite(new Texture(Gdx.files.internal("example.jpg")));
 
         energyActor = new EnergyActor(card.cost, 100, 100);
