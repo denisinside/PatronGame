@@ -361,10 +361,12 @@ class EnergyActor extends Actor {
 class NextMoveButton extends Actor {
     Sprite button;
     String text;
+    public int buttonWidth = 300,buttonHeight = 100;
+    public float positionX = Gdx.graphics.getWidth() / 2f + Gdx.graphics.getWidth() / 3f, positionY = Gdx.graphics.getHeight() / 5f;
 
     public NextMoveButton(String text) {
         this.text = text;
-        setBounds(Gdx.graphics.getWidth() / 2 + Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 5, 300, 100);
+        setBounds(positionX, positionY, buttonWidth, buttonHeight);
         button = new Sprite(new Texture(Gdx.files.internal("nextmovebutton.png")));
     }
 
@@ -372,13 +374,15 @@ class NextMoveButton extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
         button.draw(batch);
-        Fonts.ALBIONIC_LARGE_NAME.draw(batch, text, Gdx.graphics.getWidth() / 2 + Gdx.graphics.getWidth() / 3, (float) (Gdx.graphics.getHeight() / 5 + getHeight() / 1.5), getWidth(), Align.center, true);
+        Fonts.ALBIONIC_LARGE_NAME.draw(batch, text, positionX, (float) (positionY + buttonHeight / 1.5), buttonWidth, Align.center, true);
     }
 
     @Override
     public void act(float delta) {
         super.act(delta);
-        button.setBounds(getX(), getY(), getWidth(), getHeight());
+        button.setColor(getColor());
+        setBounds(positionX, positionY, buttonWidth, buttonHeight);
+        button.setBounds(positionX, positionY, buttonWidth, buttonHeight);
     }
 }
 

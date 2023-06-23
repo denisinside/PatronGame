@@ -10,7 +10,7 @@ public class CardFactory {
             case "Шалений хвіст":
                 return new AttackCard("Шалений хвіст", "два рази б'є по enemyDamage шкоди ворогам", Rarity.RARE, 2, 7, "one", 2);
             case "Бинт та ліки":
-                return new SkillCard("Бинт та ліки", "лікує Патрона 5 здоров'я", Rarity.RARE, 1, UseType.HEAL, "player", 5);
+                return new SkillCard("Бинт та ліки", "лікує Патрона на 10 здоров'я", Rarity.RARE, 1, UseType.HEAL, "player", 10);
             case "Широкий розмах":
                 return new AttackCard("Широкий розмах", "enemyDamage шкоди всім ворогам та 1 вразливість", Rarity.COMMON, 1, 3, "all", 1, new Effect[]{new VulnerabilityEffect(1)});
             case "Укус":
@@ -125,7 +125,7 @@ class ArtefactFactory {
                 return new Artefact("Бронзовий злиток", "Дає 50 монет", "Artefacts\\CopperIngot.png");
 
             case "Рюкзак":
-                return new Artefact("Рюкзак", "Підбираєте на 1 картку більше", "Artefacts\\Skull.png");
+                return new Artefact("Рюкзак", "Підбираєте на 1 картку більше", "Artefacts\\Bag.png");
 
             case "Обсидіан":
                 return new Artefact("Обсидіан", "Якщо не захищався на цьому ході, дає 5 броні", "Artefacts\\Obsidian.png");
@@ -141,6 +141,8 @@ class ArtefactFactory {
 
             case "Артемівське":
                 return new Artefact("Артемівське", "Зцілення на 5 здоров'я вкінці бою", "Artefacts\\Wine.png");
+            case "Слиз":
+                return new Artefact("Слиз", "Отримуєте на 1 радіацію менше", "Artefacts\\Gel.png");
 
             case "Око Буданова":
                 return new Artefact("Око Буданова", "Бачите наскільки захищаються вороги та які ефекти хочуть накласти", "Artefacts\\Eye.png");

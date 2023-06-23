@@ -1,5 +1,7 @@
 package com.patron.game;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -37,6 +39,7 @@ public class Enemy {
     protected int strengthBuff = 0;
     protected int defendBuff = 0;
     protected boolean isDeath;
+    protected Sound blockSound,effectSound,healSound,deathSound;
     Color color;
 
     public Enemy(String name, int hp,String path, int width,int height) {
@@ -44,6 +47,11 @@ public class Enemy {
         maxHealth = health = hp;
         actor = new EnemyActor(path,width, height, this);
         color = actor.enemySprite.getColor();
+
+        blockSound = Gdx.audio.newSound(Gdx.files.internal("sounds\\Block.mp3"));
+        effectSound = Gdx.audio.newSound(Gdx.files.internal("sounds\\Effect.mp3"));
+        healSound = Gdx.audio.newSound(Gdx.files.internal("sounds\\Heal.mp3"));
+        deathSound = Gdx.audio.newSound(Gdx.files.internal("sounds\\EnemyDeath.mp3"));
     }
 
     public void setBasicAnimation(){
@@ -90,6 +98,7 @@ public class Enemy {
     }
 
     public void addEffect(Effect effect) {
+        effectSound.setVolume(effectSound.play(),GameSound.soundVolume);
         for (Effect e : effects) {
             if (e.getClass().equals(effect.getClass())) {
                 e.moves += effect.moves;
@@ -111,6 +120,7 @@ public class Enemy {
     private boolean isTakingDamage = false;
     private boolean isHealing = false;
     public void heal(int healAmount) {
+        healSound.setVolume(healSound.play(),GameSound.soundVolume);
         if (healAmount + health <= maxHealth) {
             health += healAmount;
         } else health = maxHealth;
@@ -198,10 +208,6 @@ public class Enemy {
         actor.moveDisplay.setMove(enemyMoves.get(moveIndex));
     }
 
-    public Move nextMove() {
-        return enemyMoves.get(moveIndex).getMove();
-    }
-
     public void castImpact(Action impact) {
 
     }
@@ -218,6 +224,8 @@ public class Enemy {
     }
 
     public void attack(Action attack) {
+        Sound attackSound = GameSound.getAttackSound();
+        attackSound.setVolume(attackSound.play(),GameSound.soundVolume);
         int damage = (int) Math.round((attack.getSummaryValue() + strengthBuff * attack.count) * attackMultiplier);
         player.getDamage(damage);
         actor.enemySprite.addAction(Actions.sequence(
@@ -232,6 +240,7 @@ public class Enemy {
     }
 
     public void defend(Action block) {
+        blockSound.setVolume(blockSound.play(),GameSound.soundVolume*1.5f);
         if (!block.toAll) {
             int armor = (int) Math.round((block.getSummaryValue() + defendBuff * block.count) * defendMultiplier);
             addArmor(armor);
@@ -280,14 +289,14 @@ public class Enemy {
 
     public void setArmor(int armor) {
         this.armor = armor;
-        actor.healthBar.setArmor(armor);
-        actor.healthBar.showArmor(armor != 0);
+        actor.healthBar.setArmor(this.armor);
+        actor.healthBar.showArmor(this.armor != 0);
     }
 
     public void addArmor(int armor) {
         this.armor += armor;
-        actor.healthBar.setArmor(armor);
-        actor.healthBar.showArmor(armor != 0);
+        actor.healthBar.setArmor(this.armor);
+        actor.healthBar.showArmor(this.armor != 0);
     }
 
     public void setAttackMultiplier(double attackMultiplier) {
@@ -311,6 +320,7 @@ public class Enemy {
     }
 
     public void death() {
+        deathSound.setVolume(deathSound.play(),GameSound.soundVolume);
         actor.enemySprite.addAction(Actions.sequence(
                 Actions.parallel(
                         Actions.moveBy(actor.width / 2, actor.height / 2, 2f),

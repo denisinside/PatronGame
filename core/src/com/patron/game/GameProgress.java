@@ -16,13 +16,14 @@ public class GameProgress extends Game {
     public static Player player;
     public static Game game;
     public static TopPanel topPanel;
+    public static Menu menu;
+    public static boolean elitePassed = false;
+    //double commonChance = 0.6, rareChance = 0.3, legendaryChance = 0.1;
+    public static SettingsWindow settingsWindow;
     static ArrayList<Card> playerDeck;
-    static int room = 1;
+    static int room = 0;
     static int lastEnemyIndex = -1;
     static int fightChance = 70, eliteFightChance = 0, shopChance = 5, treasuryChance = 0, eventChance = 25, eventFightChance = 25;
-    boolean died = false;
-    //double commonChance = 0.6, rareChance = 0.3, legendaryChance = 0.1;
-    int cardRewardAmount = 3;
 
     public GameProgress() {
         game = this;
@@ -32,6 +33,7 @@ public class GameProgress extends Game {
         ArrayList<Enemy> enemies = new ArrayList<>(Arrays.asList(getEliteEnemiesForFight()));
 
         Fight fight1 = new Fight(enemies, playerDeck, game);
+        fight1.isEliteFightCurrent = true;
         if (allArtefacts.size() != 0) fight1.setReward(getRandomArtefact());
         return fight1;
     }
@@ -118,7 +120,7 @@ public class GameProgress extends Game {
                 case 0:
                     return new Enemy[]{
                             new Diggy(),
-                            new Norbert()
+                            new Norby()
                     };
                 case 1:
                     return new Enemy[]{
@@ -167,7 +169,7 @@ public class GameProgress extends Game {
                 case 0:
                     return new Enemy[]{
                             new Diggy(),
-                            new Norbert(),
+                            new Norby(),
                             new FireBagMedic()
                     };
                 case 1:
@@ -248,21 +250,29 @@ public class GameProgress extends Game {
             eventChance = 25;
         }
 
-        if (room == 8){
+        if (room == 7) {
             fightChance = 10;
             eliteFightChance = 70;
             shopChance = 10;
             treasuryChance = 0;
             eventChance = 10;
         }
-        if (room == 10){
+        if (elitePassed) {
+            elitePassed = false;
+            fightChance = 53;
+            eliteFightChance = 0;
+            shopChance = 12;
+            treasuryChance = 0;
+            eventChance = 25;
+        }
+        if (room == 10) {
             fightChance = 5;
             eliteFightChance = 0;
             shopChance = 0;
             treasuryChance = 95;
             eventChance = 0;
         }
-        if (room == 11){
+        if (room == 11) {
             fightChance = 53;
             eliteFightChance = 0;
             shopChance = 12;
@@ -275,38 +285,40 @@ public class GameProgress extends Game {
             events.add(new LandLeaseEvent());
             events.add(new PoorRaccoonEvent());
         }
-        if (room == 18){
+        if (room == 17) {
             fightChance = 10;
             eliteFightChance = 70;
             shopChance = 10;
             treasuryChance = 0;
             eventChance = 10;
         }
-        if (room == 20){
+        if (room == 20) {
             fightChance = 5;
             eliteFightChance = 0;
             shopChance = 0;
             treasuryChance = 95;
             eventChance = 0;
         }
-        if (room == 21){
+        if (room == 21) {
             fightChance = 53;
             eliteFightChance = 0;
             shopChance = 10;
             treasuryChance = 0;
             eventChance = 25;
         }
-        if (room == 28){
+        if (room == 27) {
             fightChance = 10;
             eliteFightChance = 70;
             shopChance = 10;
             treasuryChance = 0;
             eventChance = 10;
         }
-
-
-        game.setScreen(new ChooseNextRoom(getNewRoom(), getNewRoom()));
-        room++;
+        if (room == 30) {
+            game.setScreen(new FinalRoom());
+        } else {
+            game.setScreen(new ChooseNextRoom(getNewRoom(), getNewRoom()));
+            room++;
+        }
     }
 
     private static Screen getNewRoom() {
@@ -320,7 +332,7 @@ public class GameProgress extends Game {
         } else if (randomNumber <= fightChance + eliteFightChance + shopChance) {
             return new Shop();
         } else if (randomNumber <= fightChance + eliteFightChance + shopChance + treasuryChance) {
-            if (allArtefacts.size()!= 0) return createTreasury();
+            if (allArtefacts.size() != 0) return createTreasury();
             else return getNewRoom();
         } else {
             int chance = MathUtils.random(100);
@@ -328,17 +340,18 @@ public class GameProgress extends Game {
                 Fight fight = generateFight();
                 fight.isEventFight = true;
                 return fight;
-            } else if (chance <= 30){
+            } else if (chance <= 30) {
                 Shop shop = new Shop();
                 shop.isEventShop = true;
                 return shop;
-            }
-              else return getRandomEvent();
+            } else return getRandomEvent();
         }
     }
 
     private static Event getRandomEvent() {
-        return events.get(MathUtils.random(events.size() - 1));
+        Event event = events.get(MathUtils.random(events.size() - 1));
+        events.remove(event);
+        return event;
     }
 
     public static Texture getRandomBackground() {
@@ -357,16 +370,14 @@ public class GameProgress extends Game {
         return artefact;
     }
 
-    private void loadStartEvents() {
-        events.add(new AntBlacksmithEvent());
+    private static void loadStartEvents() {
         events.add(new ChoiceYourWayEvent());
         events.add(new ChickenEventEvent());
         events.add(new HeavenTempleEvent());
         events.add(new RatCampEvent());
-        //events.add(new BusinessOfferEvent());
     }
 
-    private void loadAllArtefacts() {
+    private static void loadAllArtefacts() {
         allArtefacts = new ArrayList<>();
         allArtefacts.add(ArtefactFactory.getArtefact("Дерев’яний щит"));
         allArtefacts.add(ArtefactFactory.getArtefact("Пилка для кігтів"));
@@ -374,6 +385,7 @@ public class GameProgress extends Game {
         allArtefacts.add(ArtefactFactory.getArtefact("Львівське 1715"));
         allArtefacts.add(ArtefactFactory.getArtefact("Хліб"));
         allArtefacts.add(ArtefactFactory.getArtefact("Червоне яблуко"));
+        allArtefacts.add(ArtefactFactory.getArtefact("Слиз"));
         allArtefacts.add(ArtefactFactory.getArtefact("Зелене яблуко"));
         allArtefacts.add(ArtefactFactory.getArtefact("Золотий злиток"));
         allArtefacts.add(ArtefactFactory.getArtefact("Срібний злиток"));
@@ -388,7 +400,7 @@ public class GameProgress extends Game {
         allArtefacts.add(ArtefactFactory.getArtefact("Залізний щит"));
     }
 
-    private void loadAllCards() {
+    private static void loadAllCards() {
         allCards = new ArrayList<>();
         allCards.add(CardFactory.createCard("Шалений хвіст"));
         allCards.add(CardFactory.createCard("Бинт та ліки"));
@@ -406,7 +418,7 @@ public class GameProgress extends Game {
         allCards.add(CardFactory.createCard("Айкідо"));
     }
 
-    private void makeStartDeck() {
+    private static void makeStartDeck() {
         playerDeck = new ArrayList<>();
         playerDeck.add(CardFactory.createCard("Удар лапою"));
         playerDeck.add(CardFactory.createCard("Удар лапою"));
@@ -419,9 +431,8 @@ public class GameProgress extends Game {
 
     }
 
-    @Override
-    public void create() {
-        CardActor.setFonts();
+    public static void start() {
+        room = 0;
         player = new Player();
         events = new ArrayList<>();
         Card.player = player;
@@ -434,7 +445,15 @@ public class GameProgress extends Game {
         loadAllArtefacts();
         loadStartEvents();
         makeStartDeck();
-
         next();
+    }
+
+    @Override
+    public void create() {
+        GameSound.init();
+        settingsWindow = new SettingsWindow();
+        CardActor.setFonts();
+        menu = new Menu();
+        setScreen(menu);
     }
 }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -27,8 +28,8 @@ import java.util.Random;
 public class Fight implements Screen {
     public static EnergyActor playerEnergy;
     public static Group cardActors, enemiesActors, tooltipedActors;
+    public static Artefact reward;
     static ArrayList<Enemy> enemies = new ArrayList<>();
-    public ArrayList<Enemy> currentEnemies = new ArrayList<>();
     static Player player;
     static ArrayList<Card> inHand;
     static ArrayList<Card> draw;
@@ -38,12 +39,14 @@ public class Fight implements Screen {
     static boolean loose = false;
     static RewardScene rewardScene;
     static Timer staticTimer = new Timer();
-    public static Artefact reward;
-    public Artefact currentReward;
     static int totalGoldReward;
+    public ArrayList<Enemy> currentEnemies = new ArrayList<>();
+    public Artefact currentReward;
     public boolean isEventFight = false;
+    public static boolean isEliteFight = false;
+    public boolean isEliteFightCurrent = false;
     Game game;
-    int move = 1;
+    public  static int move = 1;
     Timer timer = new Timer();
     SpriteBatch batch;
     Texture background;
@@ -51,12 +54,13 @@ public class Fight implements Screen {
     NextMoveButton nextMoveButton;
     private ShapeRenderer shapeRenderer;
 
+
     public Fight(ArrayList<Enemy> enemies, ArrayList<Card> playerDeck, Game game) {
         this.game = game;
         currentEnemies = enemies;
         reward = null;
         totalGoldReward = 0;
-
+        move = 1;
         win = loose = false;
         rewardScene = null;
 
@@ -67,41 +71,8 @@ public class Fight implements Screen {
         Collections.shuffle(draw);
 
     }
-    private void instanceArtefacts(){
-        if (player.ifHasArtefact("Трофей"))
-            for (Enemy enemy : enemies) enemy.addEffect(new WeaknessEffect(1));
 
-        if (player.ifHasArtefact("Залізний щит"))
-            player.addArmor(12);
-
-        if (player.ifHasArtefact("Дерев’яний щит"))
-             player.addEffect(new AgilityEffect(1));
-
-        if (player.ifHasArtefact("Пилка для кігтів"))
-             player.addEffect(new StrengthEffect(1));
-
-        if (player.ifHasArtefact("Артемідова стріла"))
-            for (Enemy enemy : enemies) enemy.addEffect(new VulnerabilityEffect(1));
-
-        if (player.ifHasArtefact("Львівське 1715"))
-            player.setEnergy(player.getEnergy()+1);
-
-        if (player.ifHasArtefact("Хліб"))
-            player.heal(5);
-
-    }
-    private void passiveArtefactsAtStart(){
-        if (player.ifHasArtefact("Веселий грибочок"))
-            if (MathUtils.random(1,10) == 1) player.setEnergy(player.getEnergy()+1);
-
-        if (player.ifHasArtefact("Писанка"))
-            if (move % 3 == 0) player.setEnergy(player.getEnergy()+1);
-    }
-    private void passiveArtefactsAtEnd(){
-        if (player.ifHasArtefact("Обсидіан"))
-            if (player.getArmor()==0)player.setArmor(5);
-    }
-    private static void finalArtefacts(){
+    private static void finalArtefacts() {
         if (player.ifHasArtefact("Артемівське"))
             player.heal(5);
     }
@@ -144,9 +115,11 @@ public class Fight implements Screen {
     }
 
     private static void shuffleDeck(int toDeal) {
+        GameSound.shuffleSound.setVolume(GameSound.shuffleSound.play(),GameSound.soundVolume);
         draw.clear();
         Gdx.input.setInputProcessor(null);
-        for (Card card : discard) card.cardActor.setPosition(Gdx.graphics.getWidth() + card.cardActor.getWidth(), -card.cardActor.getHeight());
+        for (Card card : discard)
+            card.cardActor.setPosition(Gdx.graphics.getWidth() + card.cardActor.getWidth(), -card.cardActor.getHeight());
         for (int i = 0; i < discard.size(); i++) {
             stage.addActor(discard.get(i).cardActor);
             int finalI = i;
@@ -154,6 +127,7 @@ public class Fight implements Screen {
                 @Override
                 public void run() {
                     discard.get(finalI).cardActor.addAction(Actions.sequence(
+                            Actions.fadeIn(0.01f),
                             Actions.parallel(
                                     Actions.moveTo(Gdx.graphics.getWidth() / 2f - CardActor.cardWidth, 50, 0.75f, Interpolation.sine),
                                     Actions.sizeTo(CardActor.cardWidth, CardActor.cardHeight, 0.75f, Interpolation.sine)
@@ -172,7 +146,6 @@ public class Fight implements Screen {
                     ));
                 }
             }, i * 0.1f);
-
         }
 
     }
@@ -199,6 +172,7 @@ public class Fight implements Screen {
     private static void checkFinal() {
         if (enemies.size() == 0) {
             finalArtefacts();
+            if (isEliteFight) GameProgress.elitePassed = true;
             rewardScene = new RewardScene(true,
                     player.ifHasArtefact("Щасливий ремінь") ? (int) (totalGoldReward * 1.25) : totalGoldReward,
                     reward);
@@ -213,11 +187,48 @@ public class Fight implements Screen {
             new Timer().scheduleTask(new Timer.Task() {
                 @Override
                 public void run() {
-
-                    Gdx.app.exit();
+                    GameSound.fightMusic.stop();
+                    GameProgress.game.setScreen(GameProgress.menu);
                 }
             }, 3f);
         }
+    }
+
+    private void instanceArtefacts() {
+        if (player.ifHasArtefact("Трофей"))
+            for (Enemy enemy : enemies) enemy.addEffect(new WeaknessEffect(1));
+
+        if (player.ifHasArtefact("Залізний щит"))
+            player.addArmor(12);
+
+        if (player.ifHasArtefact("Дерев’яний щит"))
+            player.addEffect(new AgilityEffect(1));
+
+        if (player.ifHasArtefact("Пилка для кігтів"))
+            player.addEffect(new StrengthEffect(1));
+
+        if (player.ifHasArtefact("Артемідова стріла"))
+            for (Enemy enemy : enemies) enemy.addEffect(new VulnerabilityEffect(1));
+
+        if (player.ifHasArtefact("Львівське 1715"))
+            player.setEnergy(player.getEnergy() + 1);
+
+        if (player.ifHasArtefact("Хліб"))
+            player.heal(5);
+
+    }
+
+    private void passiveArtefactsAtStart() {
+        if (player.ifHasArtefact("Веселий грибочок"))
+            if (MathUtils.random(1, 10) == 1) player.setEnergy(player.getEnergy() + 1);
+
+        if (player.ifHasArtefact("Писанка"))
+            if (move % 3 == 0) player.setEnergy(player.getEnergy() + 1);
+    }
+
+    private void passiveArtefactsAtEnd() {
+        if (player.ifHasArtefact("Обсидіан"))
+            if (player.getArmor() == 0) player.addArmor(5);
     }
 
     public void setReward(Artefact artefact) {
@@ -264,11 +275,11 @@ public class Fight implements Screen {
 
     private void effectCheck() {
         player.effectCheck();
-        if (enemies.size()!=0)
-        for (Enemy enemy : enemies) {
-            enemy.effectCheck();
-            checkKill();
-        }
+        if (enemies.size() != 0)
+            for (Enemy enemy : enemies) {
+                enemy.effectCheck();
+                checkKill();
+            }
     }
 
     private void enemyMove() {
@@ -282,8 +293,7 @@ public class Fight implements Screen {
                     }
                 }, index * 0.5f);
                 index++;
-            }
-            else {
+            } else {
                 loose = true;
                 break;
             }
@@ -292,14 +302,14 @@ public class Fight implements Screen {
 
     private void addEnemiesToGroup() {
         float y = Gdx.graphics.getHeight() / 3.3f;
-        float x = Gdx.graphics.getWidth() / 2f + 100;
+        float x = Gdx.graphics.getWidth() / 2f - 50;
         for (Enemy enemy : enemies) {
             enemiesActors.addActor(enemy.actor);
             tooltipedActors.addActor(enemy.actor.moveDisplay);
 
             enemy.actor.setPosition(x, y);
             enemy.setBasicAnimation();
-        //    enemy.actor.addAction(Actions.color());
+            //    enemy.actor.addAction(Actions.color());
             x += enemy.actor.width * 1.2;
             totalGoldReward += enemy.goldReward;
         }
@@ -313,6 +323,7 @@ public class Fight implements Screen {
         nextMoveButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                GameSound.buttonSound.setVolume(GameSound.buttonSound.play(),GameSound.soundVolume);
                 nextMove();
                 return true;
             }
@@ -351,6 +362,16 @@ public class Fight implements Screen {
 
     @Override
     public void show() {
+        if (GameSound.wayMusic.isPlaying())
+            GameSound.wayMusic.pause();
+
+        isEliteFight = isEliteFightCurrent;
+
+        if (!isEliteFight) GameSound.randomFightMusic();
+        else GameSound.fightMusic = Gdx.audio.newMusic(Gdx.files.internal("music\\ScientificTriumph.mp3"));
+        GameSound.fightMusic.setVolume(GameSound.musicVolume);
+        GameSound.fightMusic.setLooping(true);
+        GameSound.fightMusic.play();
 
         background = GameProgress.getRandomBackground();
         batch = new SpriteBatch();
@@ -384,7 +405,7 @@ public class Fight implements Screen {
         effectCheck();
         cardDeal(player.getCardPerRound());
 
-        for (Enemy enemy: enemies)
+        for (Enemy enemy : enemies)
             enemy.initialEffect();
         instanceArtefacts();
         enableListeners();
@@ -419,6 +440,7 @@ public class Fight implements Screen {
             rewardScene.draw();
         }
 
+        GameSound.updateVolume();
     }
 
     @Override
@@ -438,6 +460,8 @@ public class Fight implements Screen {
 
     @Override
     public void hide() {
+        GameSound.fightMusic.stop();
+        GameSound.fightMusic.dispose();
 
     }
 
@@ -467,12 +491,13 @@ public class Fight implements Screen {
                 }
             }
             if (keycode == Input.Keys.ENTER && Gdx.input.getInputProcessor() != null) nextMove();
-            if (keycode == Input.Keys.END){
-                for (Enemy enemy : enemies){
+            if (keycode == Input.Keys.END) {
+                for (Enemy enemy : enemies) {
                     enemy.getDamage(1000);
                 }
                 checkKill();
             }
+            if (keycode == Input.Keys.HOME) player.heal(50);
             return super.keyDown(event, keycode);
         }
 
@@ -510,8 +535,9 @@ class RewardScene extends Stage {
     Label label;
     int goldReward;
     Artefact artefactReward;
+    NextMoveButton nextMoveButton;
 
-    public RewardScene(boolean cardReward,int goldReward, Artefact artefactReward) {
+    public RewardScene(boolean cardReward, int goldReward, Artefact artefactReward) {
         this.goldReward = goldReward;
         this.artefactReward = artefactReward;
         black = new Image(new Sprite(new Texture(Gdx.files.internal("black.png"))));
@@ -527,12 +553,21 @@ class RewardScene extends Stage {
         black.addAction(Actions.fadeIn(4f, Interpolation.smooth));
         label.addAction(Actions.fadeIn(1f));
 
-        if (cardReward)getCard();
-        else if(goldReward != 0)getGold();
+        if (cardReward) getCard();
+        else if (goldReward != 0) getGold();
         else getArtefact();
 
     }
-    private void getCard(){
+
+    private void getCard() {
+        nextMoveButton = new NextMoveButton("Пропустити");
+        addActor(nextMoveButton);
+        nextMoveButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                chooseThisCard(null);
+            }
+        });
         choice = new Card[3];
         ArrayList<Card> cards = new ArrayList<>(GameProgress.allCards);
 
@@ -540,7 +575,8 @@ class RewardScene extends Stage {
             for (int i = 0; i < choice.length; i++) {
                 choice[i] = (Card) cards.remove(new Random().nextInt(cards.size())).clone();
             }
-        } catch (CloneNotSupportedException ignored) {}
+        } catch (CloneNotSupportedException ignored) {
+        }
 
         int gap = 0;
         for (Card card : choice) {
@@ -565,32 +601,34 @@ class RewardScene extends Stage {
     }
 
     private void chooseThisCard(Card card) {
+        GameSound.buttonSound.setVolume(GameSound.buttonSound.play(),GameSound.soundVolume);
         for (Card cards : choice) {
             if (card != cards) cards.cardActor.addAction(Actions.sequence(
                     Actions.parallel(
-                            Actions.moveTo(cards.cardActor.getX(), -cards.cardActor.getHeight(), 1f),
+                            Actions.moveTo(cards.cardActor.getX(), -cards.cardActor.getHeight()*5, 1f),
                             Actions.sizeTo(CardActor.cardWidth, CardActor.cardHeight, 1f)
                     ),
-                    Actions.run(()->{
-                        addAction(Actions.removeActor());
+                    Actions.run(() -> {
+                        cards.cardActor.addAction(Actions.removeActor());
                         cards.cardActor.setDraggable(true);
                     })
             ));
         }
-        card.cardActor.addAction(Actions.sequence(
+        nextMoveButton.addAction(Actions.removeActor());
+       if (card != null)card.cardActor.addAction(Actions.sequence(
                 Actions.parallel(
-                        Actions.moveBy(card.cardActor.getX(), Gdx.graphics.getHeight()+card.cardActor.getHeight(), 1.1f),
+                        Actions.moveTo(card.cardActor.getX(), Gdx.graphics.getHeight() + card.cardActor.getHeight()*5, 1.1f),
                         Actions.sizeTo(CardActor.cardWidth, CardActor.cardHeight, 1.1f)
                 ),
                 Actions.run(() -> {
-                    Actions.removeActor();
+                    card.cardActor.addAction(Actions.removeActor());
                     card.cardActor.setDraggable(true);
                     new Timer().scheduleTask(new Timer.Task() {
                         @Override
                         public void run() {
                             GameProgress.playerDeck.add(card);
                             if (goldReward != 0) getGold();
-                            else{
+                            else {
                                 dispose();
                                 GameProgress.next();
                             }
@@ -598,6 +636,13 @@ class RewardScene extends Stage {
                     }, 0.5f);
                 })
         ));
+       else{
+           if (goldReward != 0) getGold();
+           else {
+               dispose();
+               GameProgress.next();
+           }
+       }
     }
 
     private void getGold() {
@@ -605,17 +650,17 @@ class RewardScene extends Stage {
         goldSprite = new Image(new Sprite(new Texture(Gdx.files.internal("gold_reward.png"))));
         rays = new Image(new Sprite(new Texture(Gdx.files.internal("rays.png"))));
         goldSprite.setSize(250, 250);
-        goldSprite.setPosition(Gdx.graphics.getWidth()/2f - goldSprite.getWidth() / 2, -goldSprite.getHeight());
-        setupRays(500,500);
+        goldSprite.setPosition(Gdx.graphics.getWidth() / 2f - goldSprite.getWidth() / 2, -goldSprite.getHeight());
+        setupRays(500, 500);
         Label goldAmount = new Label(goldReward + "", new Label.LabelStyle(Fonts.MAURYSSEL_LARGE, Color.WHITE));
         goldAmount.scaleBy(3);
         goldSprite.addAction(Actions.sequence(
                 Actions.parallel(
                         Actions.fadeIn(1f),
-                        Actions.moveTo(Gdx.graphics.getWidth()/2f - goldSprite.getWidth() / 2, Gdx.graphics.getHeight()/2f - goldSprite.getHeight() / 2, 1f)
+                        Actions.moveTo(Gdx.graphics.getWidth() / 2f - goldSprite.getWidth() / 2, Gdx.graphics.getHeight() / 2f - goldSprite.getHeight() / 2, 1f)
                 ),
                 Actions.run(() -> {
-                    goldAmount.setPosition(Gdx.graphics.getWidth()/2f - goldAmount.getWidth() / 2, goldSprite.getY() + goldAmount.getHeight());
+                    goldAmount.setPosition(Gdx.graphics.getWidth() / 2f - goldAmount.getWidth() / 2, goldSprite.getY() + goldAmount.getHeight());
                     goldAmount.addAction(Actions.fadeIn(0.5f));
                     addActor(goldAmount);
                 })
@@ -653,16 +698,17 @@ class RewardScene extends Stage {
         label.setText("Ви знайшли артефакт!");
         artefactSprite = new Image(new Sprite(artefactReward.icon));
         rays = new Image(new Sprite(new Texture(Gdx.files.internal("rays.png"))));
+        GameSound.rewardSound.setVolume(GameSound.rewardSound.play(),GameSound.soundVolume*0.7f);
         artefactSprite.setSize(125, 125);
-        artefactSprite.setPosition(Gdx.graphics.getWidth()/2f - artefactSprite.getWidth() / 2, -artefactSprite.getHeight());
-        setupRays(375,375);
+        artefactSprite.setPosition(Gdx.graphics.getWidth() / 2f - artefactSprite.getWidth() / 2, -artefactSprite.getHeight());
+        setupRays(375, 375);
         artefactSprite.addAction(Actions.parallel(
                 Actions.fadeIn(1f),
-                Actions.moveTo(Gdx.graphics.getWidth()/2f - artefactSprite.getWidth() / 2, Gdx.graphics.getHeight()/2f - artefactSprite.getHeight() / 2, 1f)
+                Actions.moveTo(Gdx.graphics.getWidth() / 2f - artefactSprite.getWidth() / 2, Gdx.graphics.getHeight() / 2f - artefactSprite.getHeight() / 2, 1f)
         ));
         addActor(rays);
         addActor(artefactSprite);
-        addActor(new Tooltip(artefactReward.name,artefactReward.description,artefactSprite));
+        addActor(new Tooltip(artefactReward.name, artefactReward.description, artefactSprite));
         addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -683,9 +729,10 @@ class RewardScene extends Stage {
             }
         });
     }
-    private void setupRays(int width, int height){
+
+    private void setupRays(int width, int height) {
         rays.setSize(width, height);
-        rays.setPosition(Gdx.graphics.getWidth()/2f - rays.getWidth() / 2, Gdx.graphics.getHeight()/2f - rays.getHeight() / 2);
+        rays.setPosition(Gdx.graphics.getWidth() / 2f - rays.getWidth() / 2, Gdx.graphics.getHeight() / 2f - rays.getHeight() / 2);
         rays.setOrigin(rays.getWidth() / 2, rays.getHeight() / 2);
         rays.addAction(Actions.parallel(
                 Actions.fadeIn(2f),

@@ -1,5 +1,7 @@
 package com.patron.game;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -7,6 +9,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 public class Player {
     public PlayerActor actor;
@@ -27,6 +30,7 @@ public class Player {
     private int defendBuff = 0;
     private boolean isTakingDamage = false;
     private boolean isHealing = false;
+    protected Sound blockSound,effectSound,healSound;
 
     public Player() {
         health = maxHealth;
@@ -34,6 +38,9 @@ public class Player {
         actor = new PlayerActor();
         actor.healthBar.setCurrentValue(health);
         color = actor.playerSprite.getColor();
+        blockSound = Gdx.audio.newSound(Gdx.files.internal("sounds\\Block.mp3"));
+        effectSound = Gdx.audio.newSound(Gdx.files.internal("sounds\\Effect.mp3"));
+        healSound = Gdx.audio.newSound(Gdx.files.internal("sounds\\Heal.mp3"));
     }
 
     public void setBasicAnimation() {
@@ -72,15 +79,27 @@ public class Player {
 
         if (name.equals("Око Буданова")) MoveDisplay.setShowMoreInfo(true);
 
-        if (name.equals("Ленд-ліз"))
-            for (int i = 0; i < 3; i++)
-                GameProgress.playerDeck.add(GameProgress.allCards.get(MathUtils.random(GameProgress.allCards.size() - 1)));
+        if (name.equals("Ленд-ліз")){
+            ArrayList<Card> cards = new ArrayList<>(GameProgress.allCards);
+            try {
+                for (int i = 0; i < 3; i++) {
+                    Card card = (Card) cards.remove(new Random().nextInt(cards.size())).clone();
+                    card.cardActor= new CardActor(card,100,100);
+                    GameProgress.playerDeck.add(card);
+                }
+            } catch (CloneNotSupportedException ignored) {
+            }
+        }
 
     }
 
     public void addArtefact(Artefact artefact) {
+        artefact.setSize(64,64);
+        artefact.addAction(Actions.fadeIn(0.001f));
+        effectSound.setVolume(effectSound.play(),GameSound.soundVolume);
         artefacts.add(artefact);
         GameProgress.topPanel.addActor(artefact);
+        GameProgress.topPanel.addElementsWithListeners(GameProgress.topPanel.getStage());
         featureArtefact(artefact.name);
     }
 
@@ -91,6 +110,7 @@ public class Player {
     }
 
     public void addEffect(Effect effect) {
+        effectSound.setVolume(effectSound.play(),GameSound.soundVolume);
         if (effect instanceof RadiationEffect)
             if (ifHasArtefact("Слиз"))
                 effect.moves = -1;
@@ -131,6 +151,7 @@ public class Player {
     }
 
     public void heal(int healAmount) {
+        healSound.setVolume(healSound.play(),GameSound.soundVolume);
         if (healAmount + health <= maxHealth) health += healAmount;
         else health = maxHealth;
         actor.healthBar.setCurrentValue(health);
@@ -185,10 +206,11 @@ public class Player {
     public void setArmor(int armor) {
         this.armor = armor;
         actor.healthBar.setArmor(this.armor);
-        actor.healthBar.showArmor(armor != 0);
+        actor.healthBar.showArmor(this.armor != 0);
     }
 
     public void addArmor(int armor) {
+        blockSound.setVolume(blockSound.play(),GameSound.soundVolume*1.5f);
         this.armor += armor;
         actor.healthBar.setArmor(this.armor);
         actor.healthBar.showArmor(true);
@@ -276,6 +298,7 @@ public class Player {
     }
 
     public void addGold(int i) {
+        GameSound.goldSound.setVolume(GameSound.goldSound.play(),GameSound.soundVolume);
         money += i;
     }
 }
