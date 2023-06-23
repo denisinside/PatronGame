@@ -70,6 +70,14 @@ public class CardActor extends Actor {
             cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Aikido.jpg")));
         else if(card.name.equals("Відчайдушний удар"))
             cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Reckless_attack.jpg")));
+        else if(card.name.equals("У слабке місце"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Weak_place.png")));
+        else if(card.name.equals("Збити з ніг"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Knock_down.png")));
+        else if(card.name.equals("Загострений хвіст"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Sharp_tail.png")));
+        else if(card.name.equals("Подвійний удар"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Double.png")));
         else cardImageTexture = new Sprite(new Texture(Gdx.files.internal("example.jpg")));
 
         energyActor = new EnergyActor(card.cost, 100, 100);
