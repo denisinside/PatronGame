@@ -56,6 +56,16 @@ public class CardActor extends Actor {
             cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Crazy_tail.png")));
         else if(card.name.equals("Банка огірків"))
             cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Cucumber_banka.png")));
+        else if(card.name.equals("Бинт та ліки"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Bandage_cure.png")));
+        else if(card.name.equals("Смаколик"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Sweety.jpg")));
+        else if(card.name.equals("Укус"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Bite.jpg")));
+        else if(card.name.equals("Різанина"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Butcher.jpg")));
+        else if(card.name.equals("Собаче панування"))
+            cardImageTexture = new Sprite(new Texture(Gdx.files.internal("assets/icons/Cards/Hotpot.png")));
         else cardImageTexture = new Sprite(new Texture(Gdx.files.internal("example.jpg")));
 
         energyActor = new EnergyActor(card.cost, 100, 100);
